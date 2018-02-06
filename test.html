@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Get started with MapView - Create a 2D map</title>
+<style>
+  html, body, #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+</style>
+<link rel="stylesheet" href="https://js.arcgis.com/4.1/esri/css/main.css">
+<script src="https://js.arcgis.com/4.1/"></script>
+<script>
+require([
+  "esri/Map",
+  "esri/layers/MapImageLayer",
+  "esri/layers/support/MapImage",  
+  "esri/views/MapView",
+  "esri/Graphic",
+  "esri/geometry/Point",  
+  "esri/symbols/SimpleMarkerSymbol",  
+  "dojo/domReady!"
+], function(Map,  MapImageLayer, MapImage, MapView, Graphic, Point, SimpleMarkerSymbol){
+
+   var mil = new MapImageLayer();
+   
+    // create an add the actual image
+    var mi = new MapImage({
+      'extent': { 'xmin': -80.86231642791515, 'ymin': 35.497382741680745, 'xmax': -81.86231642791515, 'ymax': 36.497382741680745},
+      'href': 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
+    });
+    //mil.add(mi);   
+
+  var map = new Map({
+    basemap: "streets",
+    layers: [mil]
+  });
+  
+  //map.on("load", function() {
+    // create and add the layer
+  //  var mil = new esri.layers.MapImageLayer();
+  //  map.add(mil);
+
+    // create an add the actual image
+  //  var mi = new esri.layers.MapImage({
+  //    'extent': { 'xmin': -80.86231642791515, 'ymin': 35.497382741680745, 'xmax': -81.86231642791515, 'ymax': 36.497382741680745},
+  //    'href': 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png'
+  //  });
+  //  mil.addImage(mi);
+  //});  
+  
+  var view = new MapView({
+    container: "viewDiv",  // Reference to the scene div created in step 5
+    map: map,  // Reference to the map object created before the scene
+    zoom: 4,  // Sets the zoom level based on level of detail (LOD)
+    center: [-80, 35]  // Sets the center point of view in lon/lat
+  });
+  
+  // Create a simple object containing useful information relating to the feature
+  var julianAtt = {
+    Name: "Julian",
+    Height: "5' 10''",  // The owner of the pipeline
+    Weight: "180 lb"  // The length of the pipeline
+  };  
+  
+      /**********************
+       * Create a point graphic
+       **********************/
+
+      // First create a point geometry (this is the location of the Titanic)
+      var point = new Point({
+        longitude: -80.86231642791515,
+//        longitude: -49.97,
+//        latitude: 41.73,
+        latitude: 35.497382741680745
+      });
+
+      // Create a symbol for drawing the point
+      var markerSymbol = new SimpleMarkerSymbol({
+        color: [226, 119, 40],
+        outline: { // autocasts as new SimpleLineSymbol()
+          color: [255, 255, 255],
+          width: 2
+        }
+      });
+
+      // Create a graphic and add the geometry and symbol to it
+      var pointGraphic = new Graphic({
+        geometry: point,
+        symbol: markerSymbol,
+        attributes: julianAtt,   // Add the attributes
+	popupTemplate: {
+	      title: "{Name}",
+	      content: [{
+		type: "fields",
+		fieldInfos: [{
+		  fieldName: "Name"
+		}, {
+		  fieldName: "Height"
+		}, {
+		  fieldName: "Weight"
+		}]
+	      }]
+	    }
+      });  
+  
+      // Add the graphics to the view's graphics layer
+      view.graphics.addMany([pointGraphic]);  
+});
+</script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+</body>
+</html>

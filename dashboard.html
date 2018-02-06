@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>NEORIS IoT :: RTLS Dashboard</title>
+<link rel="stylesheet" href="https://js.arcgis.com/3.18/esri/css/esri.css">
+<link rel="stylesheet" href="/static/css/nice-select.css">
+<link rel="stylesheet" href="/static/css/responsive.css">
+<link href='https://fonts.googleapis.com/css?family=Work+Sans:300,400,600&Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.ddslick.min.js"></script>
+<script src="https://js.arcgis.com/3.18/"></script>
+<!-- <script src="/things.js"></script> -->
+
+<script src="/static/js/sockjs-0.3.4.js"></script>
+<script src="/static/js/stomp.js"></script>
+
+<script src="http://localhost:8080/rest/asset/full.js"></script>
+<script src="http://localhost:8080/rest/place/full.js"></script>
+<script src="http://localhost:8080/rest/location/full.js"></script>
+<!--<script src="http://neorisrest.us-east-1.elasticbeanstalk.com/asset/full.js"></script>
+<script src="http://neorisrest.us-east-1.elasticbeanstalk.com/place/full.js"></script>
+<script src="http://neorisrest.us-east-1.elasticbeanstalk.com/location/full.js"></script>-->
+
+<script src="/static/js/config.js"></script>
+
+<script>
+
+placeStats = {
+    active : 0,
+    mismatch : 0,
+    emergencies : 0
+}
+
+
+function urlParam(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    
+    if (results != null) {
+        return results[1] || 0;
+    } else return null;
+}    
+
+function createIconLayer(layerName, iconUrl, FeatureLayer) {
+    //create a feature collection for the flickr photos
+    var featureCollection = {
+        "layerDefinition": null,
+        "featureSet": {
+        "features": [],
+        "geometryType": "esriGeometryPoint"
+        }
+    };
+    featureCollection.layerDefinition = {
+        "geometryType": "esriGeometryPoint",
+        "objectIdField": "ObjectID",
+        "minScale" : 10000,
+        "drawingInfo": {
+        "renderer": {
+            "type": "simple",
+            "symbol": {
+            "type": "esriPMS",
+            "url": iconUrl,
+            "contentType": "image/png",
+            "width": 31,
+            "height": 35,
+            "yoffset": 19
+            }
+        }
+        },
+        "fields": [{
+        "name": "ObjectID",
+        "alias": "ObjectID",
+        "type": "esriFieldTypeOID"
+        }, {
+        "name": "description",
+        "alias": "Description",
+        "type": "esriFieldTypeString"
+        }, {
+        "name": "title",
+        "alias": "Title",
+        "type": "esriFieldTypeString"
+        }]
+    };    	  
+
+    //create a feature layer based on the feature collection
+    newLayer = new FeatureLayer(featureCollection, {
+        id: layerName,
+    });
+    
+    return newLayer;
+}
+
+//returns the center of a place
+function getCenter(placeId) {
+
+    var result = $.grep(places, function(e){ return e.id == placeId; })[0];
+    
+    centerX = +(result.xmin) + (result.xmax - result.xmin);
+    centerY = +(result.ymin) + (result.ymax - result.ymin);
+    
+    return [centerX, centerY];
+}
+
+function isWarning(asset) {
+
+    if(asset.location != null && asset.location.mode == "RTLS") {
+        if(asset.location.place.id == 9634) { // && asset.id == 4584) {
+            return true;
+        }
+    }
+    
+    return asset.alert;
+}
+
+function clearAlert(thingId) {
+    $.ajax({
+    url: BACKEND_URI + "/asset/" + asset.id,
+    type: 'PUT',
+    cache: false
+    });   
+}
+
+function showOffline() {
+    document.getElementById('offlineDiv').style.display = "block";
+}
+
+
+//UNUSED
+function notifyMismatch(thingName, stationName) {
+    $.ajax({
+        url: "https://maker.ifttt.com/trigger/skill_mismatch/with/key/DFX-634lC-YYPtPCQVNuj",
+        //url: "https://maker.ifttt.com/trigger/station_mismatch_email/with/key/DFX-634lC-YYPtPCQVNuj",
+        cache: false,
+        data: {
+            "value1": thingName,
+            "value2": stationName
+        }
+    });   
+    
+    $.ajax({
+        //url: "https://maker.ifttt.com/trigger/skill_mismatch/with/key/DFX-634lC-YYPtPCQVNuj",
+        url: "https://maker.ifttt.com/trigger/station_mismatch_email/with/key/DFX-634lC-YYPtPCQVNuj",
+        cache: false,
+        data: {
+            "value1": thingName,
+            "value2": "02-CL2"
+        }
+    });           
+}
+
+function findLayerInfo(asset) {
+
+    for(var i in layerInfoList) {
+        if(layerInfoList[i].type == asset.type) {
+            return layerInfoList[i];
+        }
+    }
+    
+    return null;
+}
+
+function getPopupContent(graphic) {
+
+    var asset = graphic.attributes.asset;
+    var layerInfo = findLayerInfo(asset);
+    
+    var pkX = getRandomFloat(0.8, 1.1);
+    var pkY = getRandomFloat(0.8, 1.1);
+    var pkZ = getRandomFloat(0.8, 1.1);
+    
+    var result = eval('`' + layerInfo.template + '`');
+    
+    return result;
+}
+
+function getPlaceContent(graphic) {
+
+    var place = graphic.attributes.place;
+
+    placeStats.active = "INACTIVE";
+    placeStats.mismatch = "INACTIVE";
+    placeStats.emergencies = "INACTIVE";
+    
+    if(place.id == "kinston") {
+    
+        placeStats.active = layerMap["person"].icon.graphics.length;
+        placeStats.mismatch = layerMap["person"].warning.graphics.length;
+        placeStats.emergencies = layerMap["machine"].warning.graphics.length;
+        
+        for(var i in layerMap["person"].icon.graphics) {
+            if(layerMap["person"].icon.graphics[i].attributes.asset.location.longitude.toFixed(2) == 0) {
+                placeStats.active--;
+            }
+        }
+    }
+    
+    var result = eval('`' + summaryLayerInfo.template + '`');
+    return result;
+}    
+
+function getPathContent(graphic) {
+
+    var asset = graphic.attributes.asset;
+    var time = graphic.attributes.time;
+    
+    var result = eval('`' + pathLayerInfo.template + '`');
+    return result;
+} 
+
+function fixAsset(asset) {
+
+    asset.type = "person";
+    asset.imageUrl = "/static/PhotoNurse.png";
+    asset.role = "Console Line 2";
+    asset.status = "AT STATION"; 
+
+    if(asset.location == null) {
+        asset.location = []
+        asset.location.longitude = 0;
+        asset.location.latitude = 0;
+        asset.location.mode = "NONE";
+        asset.location.accuracy = 0.1;
+    } else {
+    
+        if(asset.location.mode == "NONE") {
+            asset.location.longitude = 0;
+            asset.location.latitude = 0;   
+        } else if(asset.location.mode == "GPS") {
+
+        } else {
+            asset.task = asset.location.place.name;
+            asset.location.longitude = asset.location.place.longitude;
+            asset.location.latitude = asset.location.place.latitude;
+            
+        }
+    }
+        
+    asset.location.accuracy = 0.3;
+    asset.location.longitude = asset.location.longitude - 0.000025268539;
+    asset.location.latitude = asset.location.latitude - 0.00000038000539;
+
+    if(asset.id == "1000") {
+        asset.location.longitude = -77.6659757899857;
+        asset.location.latitude = 35.2650937566427;
+        asset.location.accuracy = 3.5;
+        asset.type = "machine";
+        asset.sensors = [];
+        asset.sensors.temp = "71";
+        asset.sensors.running = true;
+        asset.name = "Forklift";
+        asset.imageUrl = "/static/Forklift.png";
+        asset.alert = true;
+        
+        var path = [
+            [-77.6641740500414, 35.2645866254770],
+            [-77.6638575493778, 35.2645581553528],
+            [-77.6638092696155, 35.2648735161699],
+            [-77.6645026206457, 35.2649468811840],
+            [-77.6645334660493, 35.2647673010318],       
+            [-77.6647332906209, 35.2647618260209],
+            [-77.6646984219037, 35.2649545461816],
+            [-77.6652134060344, 35.2650027261502],
+            [-77.6659724711854, 35.2650793760412],
+            [-77.6659322380502, 35.2653750249413],
+            [-77.6639205812896, 35.2651844957737]
+        ];      
+        
+        var pathStatus = [0, 0, 0, 0, 0, 0]; 
+        
+        var pathTimes = ["01:32:30 PM","01:35:20 PM","01:38:22 PM","01:45:50 PM","01:48:00 PM","01:55:39 PM","02:01:47 PM","02:09:09 PM","02:12:30 PM","02:14:32 PM","02:16:39 PM"]; 
+    
+        asset.path = path;
+        asset.pathTimes = pathTimes;
+        asset.pathStatus = pathStatus;
+        
+    }
+    
+     if(asset.id == "1100") {
+        asset.location = {};
+        asset.location.longitude = -77.6654496965568;
+        asset.location.latitude = 35.2653629800070;
+        asset.location.accuracy = 2;
+        asset.location.mode = "NONE";
+        asset.type = "tool";
+        asset.sensors = [];
+        asset.sensors.temp = "71";
+        asset.sensors.running = true;
+        asset.name = "Toolbox 1";
+        asset.imageUrl = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat-one-color/128/toolbox-icon.png";
+    }
+    
+     if(asset.id == "1101") {
+        asset.location = {};
+        asset.location.longitude = -77.6655206310123;
+        asset.location.latitude = 35.2647324953985;
+        asset.location.accuracy = 2;
+        asset.location.mode = "NONE";
+        asset.type = "tool";
+        asset.sensors = [];
+        asset.sensors.temp = "71";
+        asset.sensors.running = true;
+        asset.name = "Toolbox 1";
+        asset.imageUrl = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat-one-color/128/toolbox-icon.png";
+    }    
+    
+    if(asset.id == "1001") {
+        asset.location.longitude = -77.6660918294870;
+        asset.location.latitude = 35.2646019555393;
+        asset.location.accuracy = 5;
+        asset.type = "machine";
+        asset.sensors = [];
+        asset.sensors.temp = "71";
+        asset.sensors.running = true;
+        asset.name = "Forklift 2";
+        asset.imageUrl = "/static/Forklift.png";
+
+    }    
+    
+    if(asset.id == "1002") {
+        asset.location.longitude = -77.6634163259950;
+        asset.location.latitude = 35.2651675233261;
+        asset.location.accuracy = 5;
+        asset.type = "machine";
+        asset.sensors = [];
+        asset.sensors.temp = "71";
+        asset.sensors.running = true;
+        asset.name = "Tugger";
+        asset.imageUrl = "http://www.yale.com/assets/0/72/74/90/206/37cd1d64-4fd0-4a92-b462-67bb46d959dc.png?n=9079";
+
+    }        
+    
+    if(asset.id == "1200") {
+    
+        asset.type = "truck";
+        asset.sensors = [];
+        asset.sensors.temp = "19";
+        asset.sensors.running = true;
+        asset.name = "Truck";
+        asset.imageUrl = "/static/PictureTruck.png";
+    
+        if(asset.location.mode != "GPS") {
+            asset.location.longitude = -77.6837363773862;
+            asset.location.latitude = 35.2643195773127;
+            asset.location.accuracy = 5;
+        }
+    }        
+    
+    if(urlParam("sym") != null) {
+        if(asset.id == "4586") {
+            asset.location.longitude = -77.6651238326919;
+            asset.location.latitude = 35.2650345775560;
+            asset.location.accuracy = 0.3;
+            asset.location.mode = "RTLS";
+            asset.location.place = {
+                "id" : 9634,
+                "name" : "Station 2"
+            
+            };
+            asset.type = "person";
+            asset.sensors = [];
+            asset.sensors.temp = "71";
+
+        }         
+        
+        if(asset.id == "4590") {
+            asset.location.longitude = -77.6650917008004;
+            asset.location.latitude = 35.2650328386160;
+            asset.location.accuracy = 0.3;
+            asset.location.mode = "RTLS";
+            asset.location.place = {
+                "id" : 9635,
+                "name" : "Station 4"
+            
+            };
+            asset.type = "person";
+            asset.sensors = [];
+            asset.sensors.temp = "71";
+
+        }      
+    }
+    
+}
+
+function getRandomFloat(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function swapLayers(graphic, layerFrom, layerTo) {
+
+    //if graphic already in destination layer, do nothing
+    if(graphic.getLayer().id == layerTo.id) return false;
+    
+    layerFrom.remove(graphic);
+    layerTo.add(graphic);   
+
+    return true;
+}
+
+var layerMap = {};
+
+require([
+  "esri/map",
+  "esri/dijit/HomeButton",
+  "esri/dijit/BasemapToggle",
+  "esri/layers/MapImageLayer",
+  "esri/layers/MapImage",  
+  "esri/graphic",
+  "esri/geometry/Point",  
+  "esri/symbols/SimpleMarkerSymbol",  
+  "esri/InfoTemplate",
+  "esri/symbols/SimpleFillSymbol",
+  "esri/symbols/SimpleLineSymbol",
+  "esri/geometry/Circle",
+  "esri/Color",
+  "esri/dijit/Scalebar",
+  "esri/layers/FeatureLayer",
+  "esri/units",
+  "esri/geometry/webMercatorUtils",
+  "esri/geometry/Polyline",
+  "esri/layers/GraphicsLayer",
+  "esri/dijit/Popup",
+  "dojo/dom-construct",
+  "dojo/dom-class",
+  "dojo/domReady!"
+], function(Map,  HomeButton, BasemapToggle, MapImageLayer, MapImage, Graphic, Point, SimpleMarkerSymbol, InfoTemplate, SimpleFillSymbol, SimpleLineSymbol,Circle, Color, Scalebar, FeatureLayer, units, webMercatorUtils, Polyline, GraphicsLayer, Popup, domConstruct, domClass){
+ 
+    //var center = [-80.832101, 35.553603]               // DAVIDSON / MOORESVILLE
+    //var center = [-103.3433210607031, 20.6032473517438]  // GUADALAJARA
+    var center = [-80.1391063920100, 26.2590503340476]   //POMPANO
+    
+    if(urlParam("home") != null) {
+        center = getCenter(urlParam("home"))
+    }
+ 
+    var map = new Map("viewDiv", {
+        basemap: "streets",
+        //zoom: 12,  // Sets the zoom level based on level of detail (LOD)
+        zoom: 20,  // Sets the zoom level based on level of detail (LOD)
+        center: center
+    });
+    
+    var originalInfoWindow = map.infoWindow;
+    originalInfoWindow.marginLeft = '80';
+    originalInfoWindow.marginTop = '70';
+    domClass.add(originalInfoWindow.domNode, "details");
+  
+    var home = new HomeButton({
+        map: map
+        }, "HomeButton");
+    home.startup();
+  
+    var toggle = new BasemapToggle({
+        map: map,
+        basemap: "satellite"
+        }, "BasemapToggle");
+    toggle.startup();
+    
+    var scalebar = new Scalebar({
+        map: map,
+        // "dual" displays both miles and kilometers
+        // "english" is the default, which displays miles
+        // use "metric" for kilometers
+        scalebarUnit: "dual"
+    });
+
+    
+    symbolCache = {};
+    function createDotSymbol(color) {
+    
+        if(null == symbolCache[color]) {
+            var markerSymbol = new SimpleMarkerSymbol({
+                color: color,
+                size: 7,
+                outline: { // autocasts as new SimpleLineSymbol()
+                    color: [255, 255, 255],
+                    width: 1
+                }
+            });
+            
+            symbolCache[color] = markerSymbol;
+        }
+    
+        return symbolCache[color];
+    
+    }
+    
+    var radiusSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+        new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([66, 133, 244, 0.50]), 1)
+            ,new Color([66, 133, 244, 0.20])
+        );
+        
+    /**********************
+    * Symbols for drawing paths
+    **********************/
+    var lineSymbol = new SimpleLineSymbol(
+        SimpleLineSymbol.STYLE_SOLID,
+        new Color([0,165,255]),
+        3
+    );
+
+    var stopSymbol = new SimpleMarkerSymbol({
+        color: [66, 133, 244, 230],
+        size: 9,
+        outline: { // autocasts as new SimpleLineSymbol()
+            color: [66, 133, 244, 110],
+            width: 8
+        }
+    });   
+    
+    var stopSymbolComplete = new SimpleMarkerSymbol({
+        color: [126, 211, 33, 230],
+        size: 9,
+        outline: { // autocasts as new SimpleLineSymbol()
+            color: [126, 211, 33, 110],
+            width: 8
+        }
+    });       
+
+    
+    function createGraphicLayers(layerInfo) {
+    
+        var graphicLayers = [];
+        var graphicWarningLayers = [];
+        var iconLayers = [];
+        var warningLayers = [];
+    
+        for(var i in layerInfo) {
+    
+            var graphicsLayer = new GraphicsLayer();
+            graphicsLayer.setMinScale(600);
+            graphicLayers.push(graphicsLayer);
+            
+            var iconLayer = createIconLayer(layerInfo[i].name, layerInfo[i].icon, FeatureLayer);
+            iconLayers.push(iconLayer);
+
+            layerMap[layerInfo[i].type] = {
+                graphics : graphicsLayer,
+                icon : iconLayer
+            };
+            
+            if(null != layerInfo[i].warningName) {
+                var graphicWarningLayer = new GraphicsLayer();
+                graphicWarningLayer.setMinScale(600);
+                graphicWarningLayers.push(graphicWarningLayer);
+
+                var warningLayer = createIconLayer(layerInfo[i].warningName, layerInfo[i].warningIcon, FeatureLayer);
+                warningLayer.setMinScale(0);
+                warningLayers.push(warningLayer);
+                
+                layerMap[layerInfo[i].type].graphicsWarning = graphicWarningLayer;
+                layerMap[layerInfo[i].type].warning = warningLayer;
+            }
+
+        }
+        
+        map.addLayers(graphicLayers);
+        map.addLayers(graphicWarningLayers);
+        map.addLayers(iconLayers);
+        map.addLayers(warningLayers);
+
+        //common layers
+        summaryLayer = createIconLayer('summaryLayer', summaryLayerInfo.icon, FeatureLayer);
+        summaryLayer.setMinScale(0);
+        summaryLayer.setMaxScale(70000);
+        map.addLayers([summaryLayer]);
+
+        //create a graphic layer to show the PATHS
+        pathLayer = new GraphicsLayer();
+        map.addLayers([pathLayer]);
+        pathLayer.hide();
+        
+        var popup;
+        var fill = new SimpleFillSymbol("solid", null, new Color("#A4CE67"));
+        pathLayer.on("mouse-over", function(evt){
+            if(evt.graphic.attributes != null) {
+                popup = new Popup({
+                    fillSymbol: fill,
+                    titleInBody: false
+                }, domConstruct.create("div"));
+                
+                domClass.add(popup.domNode, "summary");
+                
+                map.infoWindow = null;
+
+                popup.setFeatures([evt.graphic]);
+                popup.setMap(map);
+                popup.show(evt.mapPoint);
+            }
+        });
+
+        
+       pathLayer.on("mouse-out", function(evt) {
+            map.infoWindow = originalInfoWindow;
+            
+            if(popup != null) {
+                popup.destroy();
+            }
+       });        
+        
+    }
+    
+    
+    var summaryPopup;
+    
+    function myClickHandler(evt) {
+    
+        try {
+    
+            showCoordinates(evt);
+            
+            console.log(map.getScale());
+            
+            if(evt.graphic != null) {
+                if (!window.matchMedia('(min-width: 1281px)').matches) {
+                    //console.log("match");
+                    originalInfoWindow.maximize();
+                } else {
+                    //console.log("no match");
+                }      
+                
+                requestThingUpdate(evt.graphic.attributes.asset);
+            }
+            
+            if(evt.graphic != null && evt.graphic.attributes.asset != null && evt.graphic.attributes.asset.path != null) {
+            
+                drawPath(evt.graphic.attributes.asset, evt.graphic.attributes.asset.pathStatus, pathLayer);
+                pathLayer.show();
+                
+            } else if(pathLayer.visible){
+                pathLayer.hide();
+            }
+        } catch (e) {  
+            console.log(e);
+        }
+        
+    }
+    
+    //draws all places
+    function drawPlaces() {
+        var popup;
+        var summaryList = [];
+        var fill = new SimpleFillSymbol("solid", null, new Color("#A4CE67"));
+        
+        var templatePlace = new InfoTemplate({
+            title: "${Name}",
+            content: getPlaceContent
+        });
+        
+        var fgList = []
+        for(var cont=0; cont < places.length; cont++) {
+        
+            // create and add the layer to draw places
+            var mil = new esri.layers.MapImageLayer({"opacity": 0.7, "minScale": 10000});
+            if(places[cont].type == "fg") {
+                //if this is fg, save it to be drawn later
+                fgList.push(mil);
+            } else {
+                map.addLayer(mil);
+            }
+            
+            // create an add the actual image
+            var mi = new esri.layers.MapImage({
+                'extent': {'xmin': places[cont].xmin, 'ymin': places[cont].ymin, 'xmax': places[cont].xmax, 'ymax': places[cont].ymax},
+                'href': places[cont].image
+            });
+            mil.addImage(mi);
+            
+            if(places[cont].imageUrl != null) {
+                var attr = {
+                    "Name": places[cont].name,
+                    "place": places[cont]
+                }
+                
+                var pointX = new Point({longitude: places[cont].xmin, latitude: places[cont].ymin});
+                var gra = new Graphic(pointX, null, attr, templatePlace);
+                
+                summaryList.push(gra);
+            }
+        }
+        
+        //add foreground layers on top of the rest
+        for(var cont=0; cont < fgList.length; cont++) {
+            fgList[cont].setOpacity(1);
+            map.addLayer(fgList[cont]);
+        }
+        
+        summaryLayer.applyEdits(summaryList, null, null);
+        
+        summaryLayer.on("mouse-over", function(evt){
+            popup = new Popup({
+                fillSymbol: fill,
+                titleInBody: false
+            }, domConstruct.create("div"));
+            
+            domClass.add(popup.domNode, "summary");
+            
+            map.infoWindow = null;
+
+            popup.setFeatures([evt.graphic]);
+            popup.setMap(map);
+            popup.show(evt.mapPoint);
+        
+        });
+
+        
+       summaryLayer.on("mouse-out", function(evt) {
+            map.infoWindow = originalInfoWindow;
+            popup.destroy();
+       });
+
+        
+    }
+
+    //CLEARS pathLayer and draws route on it
+    function drawPath(asset, pathStatus, pathLayer) {
+    
+        pathLayer.clear();
+        
+        var templatePath = new InfoTemplate({
+            title: "${Name}",
+            content: getPathContent
+        });
+        
+        var polyline = new Polyline(asset.path);
+        var polyGraph = new Graphic(polyline, lineSymbol);
+        pathLayer.add(polyGraph);
+        
+        var pointList = []
+        for(cont = 0; cont < asset.path.length; cont++) {
+
+            var pointX = new Point({
+                longitude: asset.path[cont][0],
+                latitude: asset.path[cont][1]
+            });        
+        
+        
+            var thisStopSymbol = stopSymbol;
+            if(pathStatus[cont]) {
+                thisStopSymbol = stopSymbolComplete;
+            }
+
+            var attr = {
+                "Name": asset.name,
+                "asset": asset,
+                "time" : asset.pathTimes[cont]
+            }    
+            
+            var pathPoint = new Graphic(pointX, thisStopSymbol, attr, templatePath);
+            pathLayer.add(pathPoint);
+        }
+    }
+    
+    
+    function createMapAsset(asset, layerInfo) {
+    
+        /**********************
+        * Create a point graphic
+        **********************/
+        var pointX = new Point({
+            longitude: asset.location.longitude,
+            latitude: asset.location.latitude
+        });
+        
+        /**********************
+        * Create accuracy circle
+        **********************/
+        var circle = new Circle(pointX, {
+            geodesic: true,
+            radius: asset.location.accuracy,
+            radiusUnit: units.METERS
+        });
+        
+
+        /**********************
+        * Create a point graphic
+        **********************/
+        var props = { 
+            asset: asset,
+            Name: asset.name
+        }
+
+        var template = new InfoTemplate({
+            title: "${Name}",
+            content: getPopupContent
+        });   
+        
+        var markerSymbol;
+        if(isWarning(asset)) {
+            markerSymbol = createDotSymbol(layerInfo.warningDotColor);
+        } else {
+            markerSymbol = createDotSymbol(layerInfo.dotColor);
+        }
+        
+        var pointGraphicX = new Graphic(pointX, markerSymbol, props, template); 
+        var graphicRadius = new Graphic(circle, radiusSymbol, props);
+        var iconGraphic = new Graphic(pointX, null, props, template); 
+
+        asset.graphicRadius = graphicRadius;
+        asset.graphic = pointGraphicX;
+        asset.iconGraphic = iconGraphic;
+        
+        return {
+            graphic : pointGraphicX,
+            icon : iconGraphic,
+            radius: graphicRadius
+        }
+        
+    }
+    
+    
+    map.on("load", function() {
+    
+        try {
+    
+            //map.on("mouse-move", showCoordinates);
+            //map.on("mouse-drag", showCoordinates);
+            map.on("click", myClickHandler);
+        
+            createGraphicLayers(layerInfoList);
+        
+            //draw places on map
+            drawPlaces();
+            
+            //var layerUpdateList = {}
+            
+            // create empty lists for icons
+            //var maintenanceList = [];
+            //var equipmentList = [];
+            //var emergencyList = [];
+            
+        var newAsset = JSON.parse('{"id":1100,"name":"Id 1000","typeId":0,"subtypeId":0,"location":null,"sensors":null,"bluzoneIds":["6719669971033363684"],"currentActivePlace":null}');
+        assets.push(newAsset);            
+            
+            
+        var newAsset = JSON.parse('{"id":1101,"name":"Id 1000","typeId":0,"subtypeId":0,"location":null,"sensors":null,"bluzoneIds":["6719669971033363684"],"currentActivePlace":null}');
+        assets.push(newAsset);         
+        
+        var newAsset = JSON.parse('{"id":1001,"name":"Id 1000","typeId":0,"subtypeId":0,"location":null,"sensors":null,"bluzoneIds":["6719669971033363684"],"currentActivePlace":null}');
+        assets.push(newAsset);     
+        
+        var newAsset = JSON.parse('{"id":1002,"name":"Id 1000","typeId":0,"subtypeId":0,"location":null,"sensors":null,"bluzoneIds":["6719669971033363684"],"currentActivePlace":null}');
+        assets.push(newAsset);     
+
+        //var newAsset = JSON.parse('{"id":1200,"name":"Id 1000","typeId":0,"subtypeId":0,"location":null,"sensors":null,"bluzoneIds":["6719669971033363684"],"currentActivePlace":null}');
+        //assets.push(newAsset);     
+
+        
+            for (var index in assets) {
+            
+                fixAsset(assets[index]);
+            
+                var layerInfo = findLayerInfo(assets[index]);
+
+                //create and add dot and accuracy radius
+                mapAsset = createMapAsset(assets[index], layerInfo);
+                map.graphics.add(mapAsset.graphic);
+                
+                //add icon asset to corresponding list based on asset type
+                if(isWarning(assets[index])) {
+                    layerMap[layerInfo.type].graphicsWarning.add(mapAsset.radius);
+                    layerMap[layerInfo.type].warning.add(mapAsset.icon);
+                } else {
+                    layerMap[layerInfo.type].graphics.add(mapAsset.radius);
+                    layerMap[layerInfo.type].icon.add(mapAsset.icon);
+                }
+                
+                
+            }
+
+            $('#layerFilter').ddslick({
+                width: "260px",
+                onSelected: function(selectedData){
+                    layerSelected(selectedData.selectedData);
+                }   
+            });       
+            
+            $('#layerFilterSmall').ddslick({
+                width: "60px",
+                onSelected: function(selectedData){
+                    layerSelected(selectedData.selectedData);
+                }   
+            });       
+            
+            //add each icon list to its layer
+            //maintenanceLayer.applyEdits(maintenanceList, null, null);            
+            //equipmentLayer.applyEdits(equipmentList, null, null);
+            //emergencyLayer.applyEdits(emergencyList, null, null);
+        } catch (e) {  
+            console.log(e);
+        }
+            
+    });  
+    
+    function processThingUpdate(data) {
+    
+        try {
+ 
+            var asset;
+            for (var i=0; i< assets.length; i++) {
+                if(data['id'] == assets[i].id) {
+                    asset = assets[i];
+                    break;
+                }
+            }
+            
+            if(asset==null){
+                return;
+            }
+            
+            var layerInfo = findLayerInfo(asset);
+            
+            asset.alert = data.alert;
+            
+            var popupElement = $("#popup_" + asset.id);
+            
+            /*
+            if(data.sensors != null && data.sensors.temp != null) {
+                asset.sensors = data.sensors;
+                
+                var props = createProperties(asset);
+                asset.graphic.setAttributes(props);
+                asset.iconGraphic.setAttributes(props);
+            
+                popupElement = $("#popup_" + data['id']);
+                if(popupElement != null) {
+                    //there's a popup showing for this asset, update values
+                    
+                    popupElement.find('#temp').html(Number(data.sensors.temp).toFixed(2) + " &deg;C");
+                    popupElement.find('#vibration').html(Number(data.sensors.vibration).toFixed(4));
+                    popupElement.find('#pkX').html(Number(data.sensors.pkX).toFixed(10));
+                    popupElement.find('#pkY').html(Number(data.sensors.pkY).toFixed(10));
+                    popupElement.find('#pkZ').html(Number(data.sensors.pkZ).toFixed(10));
+                    popupElement.find('#running').html(data.sensors.running ? "RUNNING" : "STOPPED");
+                }
+
+                if (asset.graphic != null){
+                
+                    if(isWarning(asset)) {
+                        asset.graphic.setSymbol(markerSymbolRed);
+                        
+                        swapLayers(asset.graphicRadius, maintenanceGraphicsLayer, emergencyGraphicsLayer);
+                        var changed = swapLayers(asset.iconGraphic, maintenanceLayer, emergencyLayer);
+                        
+                        if(changed) {
+                            console.log("Asset " +  asset.id + " is now an EMERGENCY.");
+                        } else {
+                            console.log("Asset " +  asset.id + " is still an EMERGENCY.");
+                        }
+                    } else if(asset.type == "person") {
+                        asset.graphic.setSymbol(markerSymbolBlue);
+                        
+                        swapLayers(asset.graphicRadius, emergencyGraphicsLayer, maintenanceGraphicsLayer);
+                        var changed = swapLayers(asset.iconGraphic, emergencyLayer, maintenanceLayer);
+                        
+                        if(changed) {
+                            console.log("Asset " + asset.id + " is no longer an emergency");
+                        }
+                        
+                    } else {
+                    
+                        asset.graphic.setSymbol(markerSymbolGreen);
+                        
+                        swapLayers(asset.graphicRadius, emergencyGraphicsLayer, equipmentGraphicsLayer);
+                        var changed = swapLayers(asset.iconGraphic, emergencyLayer, equipmentLayer);
+                        
+                        if(changed) {
+                            console.log("Asset " + asset.id + " is no longer an emergency");
+                        }
+                    }
+                }
+            } 
+            */
+
+            if (asset.graphic != null) {
+            
+                //update the name attribute used for the title in case it changed
+                asset.graphic.attributes.name = asset.name; 
+            
+                if(isWarning(asset)) {
+                    asset.graphic.setSymbol(createDotSymbol(layerInfo.warningDotColor));
+                    
+                    swapLayers(asset.graphicRadius, layerMap[layerInfo.type]["graphics"], layerMap[layerInfo.type]["graphicsWarning"]);
+                    var changed = swapLayers(asset.iconGraphic, layerMap[layerInfo.type]["icon"], layerMap[layerInfo.type]["warning"]);
+                    
+                    if(changed) {
+                        console.log("Asset " +  asset.id + " is now an EMERGENCY.");
+                    } else {
+                        console.log("Asset " +  asset.id + " is still an EMERGENCY.");
+                    }
+                } else if(asset.type == "person") {
+                    asset.graphic.setSymbol(createDotSymbol(layerInfo.dotColor));
+                    
+                    swapLayers(asset.graphicRadius, layerMap[layerInfo.type]["graphicsWarning"], layerMap[layerInfo.type]["graphics"]);
+                    var changed = swapLayers(asset.iconGraphic, layerMap[layerInfo.type]["warning"], layerMap[layerInfo.type]["icon"]);
+                    
+                    if(changed) {
+                        console.log("Asset " + asset.id + " is no longer an emergency");
+                    }
+                    
+                } 
+            }
+            
+            if(asset.location.longitude != data.location.longitude 
+                || asset.location.latitude != data.location.latitude
+                || asset.location.accuracy != data.location.accuracy
+                || asset.location.mode != data.location.mode) {
+                
+                asset.location = data.location;
+                
+                if(asset.location.mode != "GPS") {
+                    asset.location.longitude = asset.location.place.longitude - 0.000025268539;
+                    asset.location.latitude = asset.location.place.latitude - 0.00000038000539;            
+                    asset.location.accuracy = 0.3;
+                }
+                
+                if(asset.location.mode == "NONE") {
+                    asset.location.longitude = 0;
+                    asset.location.latitude = 0;   
+                }
+                
+                var newPoint = new Point({
+                    longitude: asset.location.longitude,
+                    latitude: asset.location.latitude
+                });
+                
+                var newCircle = new Circle(newPoint, {
+                    geodesic: true,
+                    radius: asset.location.accuracy,
+                    radiusUnit: units.METERS
+                });
+                
+                asset.graphicRadius.setGeometry(newCircle); 
+                asset.graphic.setGeometry(newPoint);
+                asset.iconGraphic.setGeometry(newPoint);
+                
+                if(asset.follow) {
+                    centerAt(asset.location.longitude, asset.location.latitude);
+                }
+                
+            }
+            
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    
+    function requestThingUpdate(asset) {
+    
+        var alert = false;
+        if(isWarning(asset) && asset.type == "person") {
+            alert = true;
+        }
+    
+        $.ajax({
+        url: BACKEND_URI + "/asset/" + asset.id + "?alert=" + alert,
+        headers: {          
+            Accept: "application/json; charset=utf-8"
+        },
+        cache: false,
+        success: function(data) {
+            processThingUpdate(data);
+        }
+        });   
+    }
+    
+    var stompClient = null;
+    function connect() {
+        
+        var socket = new SockJS(WEBSOCKET_ENDPOINT);
+        stompClient = Stomp.over(socket);  
+        stompClient.connect({}, function(frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe(WEBSOCKET_TOPIC, function(messageOutput) {
+                processThingUpdate(JSON.parse(messageOutput.body));
+            });
+        });
+    }
+        
+    function disconnect() {
+        if(stompClient != null) {
+            stompClient.disconnect();
+        }
+        setConnected(false);
+        console.log("Disconnected");
+    }
+    
+    connect();
+    
+    function showCoordinates(evt) {
+    
+        //the map is in web mercator but display coordinates in geographic (lat, long)
+        var mp = webMercatorUtils.webMercatorToGeographic(evt.mapPoint);
+        
+        console.log(mp.x.toFixed(13) + ", " + mp.y.toFixed(13));
+        
+        //display mouse coordinates
+        $('#info').innerHTML = mp.x.toFixed(13) + ", " + mp.y.toFixed(13);
+
+    }    
+    
+    function centerAt(lat, long) {
+    
+        var CenPoint = new esri.geometry.Point({ "x": lat, "y": long, });
+        var mercator = esri.geometry.geographicToWebMercator(CenPoint);
+        
+        map.centerAt(mercator);
+    }     
+    
+    for(var i in layerInfoList) {
+    
+        $('#layerFilter').append('<option value="' + layerInfoList[i].type + '" data-imagesrc="' + layerInfoList[i].icon + '">' + layerInfoList[i].name + '</option>');
+        $('#layerFilterSmall').append('<option value="' + layerInfoList[i].type + '" data-imagesrc="' + layerInfoList[i].icon + '"></option>');
+
+        if(null != layerInfoList[i].warningName) {
+            $('#layerFilter').append('<option value="' + layerInfoList[i].type + '+warning" data-imagesrc="' + layerInfoList[i].warningIcon + '">' + layerInfoList[i].warningName + '</option>');
+            $('#layerFilterSmall').append('<option value="' + layerInfoList[i].type + '+warning" data-imagesrc="' + layerInfoList[i].warningIcon + '"></option>');
+        }
+        
+    }
+
+});
+
+
+function showHide() {
+    var div = document.getElementById('scoreboard');
+    if (div.style.display !== 'none') {
+        div.style.display = 'none';
+    }
+    else {
+        div.style.display = 'block';
+    }
+};
+ 
+function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; // Distance in km
+  return d;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}
+
+function showLayers(layerNames) {
+
+    for(var i in layerInfoList) {
+        var layers = layerMap[layerInfoList[i].type];
+        
+        if(layerNames[0] == 'all') {
+            layers.graphics.show();
+            layers.icon.show();
+            
+            if(layers.warning != null) {
+                layers.graphicsWarning.show();
+                layers.warning.show();
+            }
+        } else {
+            layers.graphics.hide();
+            layers.icon.hide();
+            if(layers.warning != null) {
+                layers.graphicsWarning.hide();
+                layers.warning.hide();
+            }
+        }
+    }
+
+    for(var cont=0; cont < layerNames.length; cont++) {
+    
+        var comps = layerNames[cont].split('+');
+        
+        var isWarning = false;
+        if(comps.length == 2) isWarning = true;
+        
+        if(comps[0] == 'all') break;
+        
+        if(isWarning) {
+            layerMap[comps[0]].graphicsWarning.show();
+            layerMap[comps[0]].warning.show();
+        } else {
+            layerMap[comps[0]].graphics.show();
+            layerMap[comps[0]].icon.show();
+        }
+    }
+}
+
+
+function layerSelected(combo) {
+
+    showLayers([combo.value]);
+
+}
+
+</script>
+</head>
+<body>
+  <div id="viewDiv">
+    <div id="HomeButton"></div><div id="BasemapToggle"></div>
+  </div>
+  <div style='position: absolute; left:0;bottom:30px; width:25%; max-width:275px'><img width="100%" src="/static/neoris.png" /></div>
+  <div style='position: absolute; right:0px;top:170px'>
+    <br><input type="button" onClick="showHide()" value="> <"/>
+  </div>
+  <div id="offlineDiv" style='position: absolute; right:10px;bottom:30px;cursor: pointer; display: none' onClick="javascript:location.reload()">
+    <p class="niceTitle" style="color: #960707; font-weight: bold;"> OFFLINE </p>
+  </div>
+
+  <div id='statusBox' class='statusBox'>
+    <p class="niceTitle"> Electrolux Console </p>
+    <p class="niceText"> Filter By 
+        <select id="layerFilter">
+            <option value="all" selected="selected" data-imagesrc="/static/IconAllFixed.png">All</option>
+        </select>    
+    </p>
+  </div>
+  
+  <div id='statusBox' class='statusBoxSmall'>
+    <select id="layerFilterSmall">
+        <option value="all" selected="selected" data-imagesrc="/static/IconAllFixed.png"></option>
+    </select>    
+  </div>    
+  
+  <div style='position: absolute; right:0px;top:20px; display:none; box-shadow: 2px 2px 5px #888888; background-color: white' id='scoreboard'>
+    <iframe src="/scoreboard.html" width="435px" height="160px" frameBorder="0"/>
+  </div>
+  
+</body>
+</html>

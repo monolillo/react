@@ -1,0 +1,284 @@
+@media (min-width:320px)  { /* smartphones, portrait iPhone, portrait 480x320 phones (Android) */ 
+  html, body, #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+   #HomeButton {
+      position: absolute;
+      top: 95px;
+      left: 20px;
+      z-index: 50;
+    }
+   #BasemapToggle {
+        position: absolute;
+        top: 140px;
+        left: 20px;
+        z-index: 50;
+    }
+    .basemapImage {
+        width: 7vh !important;
+        height: 7vh !important;
+    }
+        
+    .basemapBG {
+        background-size: contain;
+    }
+    
+  .niceTitle {
+    font-size: 36px;
+    font-weight: 300;
+    letter-spacing: -2px;
+    margin: 0 0 24px; 
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #445870;
+    font-family: 'Work Sans', sans-serif;
+  }  
+
+  .medText {
+    font-size: 22px;
+    letter-spacing: -0.25px;
+    margin: 0 0 10px; 
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #445870;
+    font-family: 'Work Sans', sans-serif;
+  }  
+
+  .niceText {
+    font-size: 15px;
+    letter-spacing: -0.25px;
+    margin: 0 0 10px; 
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #445870;
+    font-family: 'Work Sans', sans-serif;
+  }  
+  
+  .smallText {
+    font-size: 12px;
+    letter-spacing: -0.25px;
+    margin: 0 0 10px; 
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #445870;
+    font-family: 'Work Sans', sans-serif;
+  }    
+  
+  .statusBox {
+    display: none;
+  }
+  
+  .statusBoxSmall {
+    position: absolute; 
+    right:1em;
+    top:1em; 
+    background-color: white; 
+    display: block;
+  }    
+  
+  
+    .esriPopup.details .sizer {
+        width: 200px !important;
+    }
+    
+    .esriPopup.details .contentPane {
+        text-align: left;
+        max-height: 400px;
+        overflow: auto;
+    }
+    
+    .esriPopup.details .leftColumn {
+
+        float: left; 
+        width: 180px;
+    }
+    
+    .esriPopup.details .rightColumn {
+
+        float: right; 
+        width: 180px;
+    }
+    
+    .esriPopup.details .button {
+
+        background-color: rgb(74, 144, 226); 
+        border: 0px solid rgb(128, 0, 0); 
+        border-radius: 5px; 
+        padding: 10px; 
+        color: white; 
+        text-align: center;
+        cursor: pointer
+    }
+  
+    /* Change color of icons to match bar chart and selection symbol */
+
+    .esriPopup.summary .titlePane,
+
+    .esriPopup.summary .actionsPane {
+
+        border-radius: 0 0 0 0 !important;
+        -webkit-border-radius: 0 0 0 0 !important;
+    }
+
+    
+    .esriPopup.summary .contentPane {
+        text-align: left;
+        padding: 0 !important;
+        background-color: white;
+        overflow: visible
+    }
+    
+    .esriPopup.summary .actionsPane {
+        display: none;
+    }
+    
+    .esriPopup.summary .sizer {
+        width: 150px !important;
+    }
+    
+    /* Additional customizations */
+
+    .esriPopup.summary .esriPopupWrapper {
+        border: none;
+    }    
+    
+    .esriPopup.summary .rightColumn {
+
+        width: 142px; 
+        height: 150px; 
+        padding-left: 8px; 
+        padding-bottom:0px;
+        position: absolute;
+        background-color:rgba(255, 255, 255, 0.7);
+    }
+    
+    .esriPopup.summary .esriPopupWrapper {
+        border: none;
+    }
+    .esriPopup.summary .leftColumn {
+
+        width: 150px;
+        height: 150px; 
+        position: absolute;
+        overflow: hidden
+    }  
+    
+    .esriPopup.summary .labels {
+        display: none;
+    }
+  
+}
+@media (min-width:480px)  { /* smartphones, Android phones, landscape iPhone */
+}
+@media (min-width:600px)  { /* portrait tablets, portrait iPad, e-readers (Nook/Kindle), landscape 800x480 phones (Android) */
+}
+@media (min-width:801px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */ 
+}
+@media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */ 
+}
+@media (min-width:1281px) { 
+
+    .esriPopup.details .sizer {
+        width: 500px !important;
+    }
+    
+    .esriPopup.details .contentPane {
+        text-align: left;
+        max-height: 300px;
+    }
+    
+    .esriPopup.details .leftColumn {
+
+        float: left; 
+        width: 200px
+    }
+    
+    .esriPopup.details .rightColumn {
+
+        float: right; 
+        width: 250px;
+        padding-right: 15px
+    }
+    
+    /* Change color of icons to match bar chart and selection symbol */
+
+    .esriPopup.summary .titlePane,
+
+    .esriPopup.summary .actionsPane {
+
+        border-radius: 0 0 0 0 !important;
+        -webkit-border-radius: 0 0 0 0 !important;
+    }
+
+    
+    .esriPopup.summary .contentPane {
+        text-align: left;
+        padding: 0 !important;
+        background-color: white;
+        overflow: hidden
+    }
+    
+    .esriPopup.summary .actionsPane {
+        display: none;
+    }
+    
+    .esriPopup.summary .sizer {
+        width: 440px !important;
+    }
+    
+    /* Additional customizations */
+
+    .esriPopup.summary .esriPopupWrapper {
+        border: none;
+    }    
+    
+    .esriPopup.summary .rightColumn {
+
+        position: relative;
+        float:right; 
+        width: 244px; 
+        padding:15px; 
+        padding-bottom:0px;
+        margin: 0px;
+        background-color:rgba(255, 255, 255, 1);
+    }
+    
+    .esriPopup.summary .esriPopupWrapper {
+
+        border: none;
+
+    }
+    .esriPopup.summary .leftColumn {
+
+        position: relative;
+        float: left; 
+        width: 166px;
+        height: auto;
+    }
+    
+    .esriPopup.summary .labels {
+        display: table-cell;
+    }
+    
+    .statusBox {
+        position: absolute; 
+        left:12.5em;
+        top:1.3em; 
+        background-color: white; 
+        width:700px; 
+        height: 140px; 
+        box-shadow: 2px 2px 5px #888888; 
+        padding:10px;
+        display: block;
+    }  
+    
+    .statusBoxSmall {
+        display: none;
+    }
+    
+    
+
+}
