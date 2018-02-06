@@ -428,7 +428,8 @@ require([
  
     //var center = [-80.832101, 35.553603]               // DAVIDSON / MOORESVILLE
     //var center = [-103.3433210607031, 20.6032473517438]  // GUADALAJARA
-    var center = [-80.1391063920100, 26.2590503340476]   //POMPANO
+    //var center = [-80.1391063920100, 26.2590503340476]   //POMPANO
+    var center = getCenter("kinston");
     
     if(urlParam("home") != null) {
         center = getCenter(urlParam("home"))
