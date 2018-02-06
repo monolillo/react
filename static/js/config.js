@@ -1,6 +1,6 @@
 
-var BACKEND_URI = 'http://localhost:8080/rest'
-//var BACKEND_URI = 'http://neorisrest.us-east-1.elasticbeanstalk.com'
+//var BACKEND_URI = 'http://localhost:8080/rest'
+var BACKEND_URI = 'http://neorisrest.us-east-1.elasticbeanstalk.com'
 var WEBSOCKET_ENDPOINT = BACKEND_URI + "/chat";    
 var WEBSOCKET_TOPIC = '/topic/assets';    
 
