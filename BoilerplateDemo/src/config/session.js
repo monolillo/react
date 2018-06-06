@@ -1,37 +1,21 @@
-import Request from '../api/request';
-import { URL_LOGIN } from '../api/URL';
-
 const Auth = {
-  login: (user, password) => {
-    Request.post({
-      url: URL_LOGIN,
-      data: {
-        user,
-        password
-      }
-    })
-    .then(response => {
-      createAccess();
-    })
-    .catch()
+  setLogin: (token) => {
+    localStorage.setItem('token', token);
   },
   isLogged: () => {
-    const validate = validateJWT();
-    return validate;
+    if (localStorage.token) {
+      return true;
+    }
+
+    return false;
   },
   logout: () => {
-    // destroy login
+    delete localStorage.token;
   }
 }
-
-const createAccess = () => {
-  // jwt
-};
-
 
 const validateJWT = () => {
   return false
 }
-
 
 export default Auth;

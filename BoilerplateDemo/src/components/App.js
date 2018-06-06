@@ -27,7 +27,7 @@ class App extends Component {
   }
 
   render() {
-    const renderView = Auth.isLogged() ? this.renderLogin() : this.renderContent();
+    const renderView = Auth.isLogged() ? this.renderContent() : this.renderLogin();
 
     return (
       <section className="app">
