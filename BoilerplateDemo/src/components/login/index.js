@@ -3,6 +3,7 @@ import { Input, Button, Form } from 'semantic-ui-react';
 import { withRouter } from 'react-router';
 import Auth from '../../config/session';
 import Request from '../../api/request';
+import NotificationSystem from 'react-notification-system';
 
 class Login extends Component {
 
@@ -40,7 +41,11 @@ class Login extends Component {
       }
     })
     .catch(error => {
-      console.log('Ocurrio un error', error);
+      this.refs.notificationSystem.addNotification({
+        message: 'Invalid user, check your data and try again',
+        level: 'warning'
+      });
+      console.log('Error', error);
     });
   }
 
@@ -82,6 +87,7 @@ class Login extends Component {
             </Form>
           </div>
         </div>
+        <NotificationSystem ref="notificationSystem" />
       </Fragment>
     );
   }

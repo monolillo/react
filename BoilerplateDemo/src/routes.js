@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import App from './components/App';
-import Clients from './components/clients';
+import People from './components/people';
 import Home from './components/home';
 import Blabla from './components/blabla';
 import Login from './components/login';
@@ -14,7 +14,7 @@ class RoutesApp extends Component {
         <Switch>
           <App>
             <Route path="/" exact component={Home} />
-            <Route path="/clients" component={Clients} />
+            <Route path="/people" component={People} />
             <Route path="/blabla" component={Blabla} />
             <Route path="/login" component={Login} />
           </App>
