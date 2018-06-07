@@ -15,6 +15,9 @@ class MenuApp extends Component {
 
   handleClickSingout = (e) => {
     Auth.logout();
+    const { changeActiveItem, history } = this.props;
+   
+    history.push('/login');
   };
 
   render() {
