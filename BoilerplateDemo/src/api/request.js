@@ -2,11 +2,13 @@ import axios from 'axios';
 import { BASE_URL_DEV, BASE_URL_PROD, LOGIN_AZURE } from './URLs';
 
 const BASE_URL = process.env.environment === 'PRODUCTION' ? BASE_URL_PROD : BASE_URL_DEV
+// 'Accept': 'application/json',
+// const headers = {
+ 
+//   'Content-Type': 'application/json'
+// };
 
-const headers = {
-  'Accept': 'application/json',
-  'Content-Type': 'application/json'
-};
+const headers={'Content-Type': 'text/plain'}
 
 const headersLoginAzure = {
   headers: {
@@ -27,7 +29,31 @@ const Request = {
   },
   async post(params) {
     try {
+      console.log(`${BASE_URL}/${params.url}`, params.data, headers);
       const req = await axios.post(`${BASE_URL}/${params.url}`, params.data, headers);
+      
+      const response = { status: req.status, res: req.data };
+      return response;
+    }
+    catch (error) {
+      throw error;
+    }
+  },
+  async put(params) {
+    try {
+      console.log(`${BASE_URL}/${params.url}`, params.data, headers);
+      const req = await axios.put(`${BASE_URL}/${params.url}`, params.data, headers);
+      const response = { status: req.status, res: req.data };
+      return response;
+    }
+    catch (error) {
+      throw error;
+    }
+  },
+  async delete(params) {
+    try {
+      console.log(`${BASE_URL}/${params.url}`, params.data, headers);
+      const req = await axios.delete(`${BASE_URL}/${params.url}`, params.data, headers);
       const response = { status: req.status, res: req.data };
       return response;
     }

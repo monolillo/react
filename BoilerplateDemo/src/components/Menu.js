@@ -4,6 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as actions from '../actions/menu';
 import Auth from '../config/session';
+import SearchComponent from './search'
 
 class MenuApp extends Component {
 
@@ -29,9 +30,9 @@ class MenuApp extends Component {
         <Menu.Menu>
           <Dropdown item text="Administration">
             <Dropdown.Menu>
-              <Dropdown.Item name="administration" to="/people" onClick={this.handleClickItem}>People</Dropdown.Item>
-              <Dropdown.Item name="administration" to="/providers" onClick={this.handleClickItem}>Providers</Dropdown.Item>
-              <Dropdown.Item name="administration" to="/products" onClick={this.handleClickItem}>Products</Dropdown.Item>
+              <Dropdown.Item name="people" to="/people" onClick={this.handleClickItem}>People</Dropdown.Item>
+              <Dropdown.Item name="providers" to="/providers" onClick={this.handleClickItem}>Providers</Dropdown.Item>
+              <Dropdown.Item name="products" to="/products" onClick={this.handleClickItem}>Products</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </Menu.Menu>
@@ -42,6 +43,9 @@ class MenuApp extends Component {
               UserName
             </Label>
           </Menu.Item>
+          <Menu.Item>
+            <SearchComponent actualcomponent={active}/>
+            </Menu.Item>
 
           <Dropdown item icon='configure'>
             <Dropdown.Menu>
