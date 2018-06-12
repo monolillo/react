@@ -25,14 +25,16 @@ class People extends Component {
     this.setState({ [field]: value });
   }
 
+  clearState = () => this.setState({id: 0,badgeid: '',name: '',bvbeaconid: '',iconurl: '',typeid: '' });
+
   handleCreate = async () => {
     const { history } = this.props;
-    const { badgeid,name,bvbeaconid } = this.state;
+    const { badgeid, name, bvbeaconid } = this.state;
 
     const details = {
-        badgeid: badgeid,
-        name: name,
-        bvbeaconid:bvbeaconid
+      badgeid: badgeid,
+      name: name,
+      bvbeaconid: bvbeaconid
     }
 
     const formBody = await this.setFormBody(details);
@@ -47,6 +49,7 @@ class People extends Component {
             message: 'funciono',
             level: 'success'
           });
+          this.clearState();
         }
       })
       .catch(error => {
@@ -60,18 +63,18 @@ class People extends Component {
 
   handleUpdate = async () => {
     const { history } = this.props;
-    const {id, badgeid,name,bvbeaconid } = this.state;
+    const { id, badgeid, name, bvbeaconid } = this.state;
 
     const details = {
-        badgeid: badgeid,
-        name: name,
-        bvbeaconid:bvbeaconid
+      badgeid: badgeid,
+      name: name,
+      bvbeaconid: bvbeaconid
     }
 
     const formBody = await this.setFormBody(details);
 
     Request.put({
-      url: API_URL_PEOPLE + '/' + id +'/update',
+      url: API_URL_PEOPLE + '/' + id + '/update',
       data: details
     })
       .then(response => {
@@ -80,6 +83,7 @@ class People extends Component {
             message: 'funciono',
             level: 'success'
           });
+          this.clearState();
         }
       })
       .catch(error => {
@@ -93,10 +97,10 @@ class People extends Component {
 
   handleDelete = async () => {
     const { history } = this.props;
-    const {id} = this.state;
+    const { id } = this.state;
 
     Request.delete({
-      url: API_URL_PEOPLE + '/' + id +'/delete',
+      url: API_URL_PEOPLE + '/' + id + '/delete',
     })
       .then(response => {
         if (response.status === 200) {
@@ -104,6 +108,7 @@ class People extends Component {
             message: 'funciono',
             level: 'success'
           });
+          this.clearState();
         }
       })
       .catch(error => {
@@ -127,95 +132,50 @@ class People extends Component {
     return formBody.join("&");
   }
 
-  componentWillReceiveProps() {
-    //console.log('componentWillReceiveProps', this.props);
-    this.setState({ id: this.props.people.id });
-    this.setState({ badgeid: this.props.people.badgeid });
-    this.setState({ name: this.props.people.name });
-    this.setState({ bvbeaconid: this.props.people.bvbeaconid });
-    this.setState({ iconurl: this.props.people.iconurl });
-    this.setState({ typeid: this.props.people.typeid });
-  }
-
   /*
-  
- 
-   componentDidMount() {
-     this.loadSearchData();
-   }
- 
- 
-   handleSearchChange = (e, { value }) => {
-     this.setState({ isLoading: true, value })
- 
-     setTimeout(() => {
-       if (this.state.value.length < 1) return this.resetComponent()
-       const re = new RegExp(_.escapeRegExp(this.state.value), 'i')
-       const isMatch = result => re.test(result.title)
-       this.setState({
-         isLoading: false,
-         results: _.filter(this.state.results, isMatch),
-       })
-     }, 300)
-   }
- 
-   loadSearchData = async () => {
-     const params = {
-       url: API_URL_PEOPLE
-     }
-     Request.get(params)
-       .then(response => {
-         if (response.status === 200) {
-           if (localStorage.getItem("lookUpAllPeople") != undefined) {
-             localStorage.removeItem("lookUpAllPeople");
-           }
-           localStorage.setItem("lookUpAllPeople", JSON.stringify(response.res));
-           this.setState({ results: response.res })
-           console.log(this.state.results);
-         }
-       })
-       .catch(error => {
-         this.refs.notificationSystem.addNotification({
-           message: 'Invalid user, check your data and try again',
-           level: 'warning'
-         });
-         console.log('Error', error);
-       })
- 
-   }
- */
-  componentDidUpdate() {
-    //this.setState({people:this.props.people});
-    //console.log('update',this.state);
+  componentWillReceiveProps() {
+    console.log('componentWillReceiveProps');
+    this.setState({ 
+      id: this.props.people.id,
+      badgeid: this.props.people.badgeid,
+      name: this.props.people.name,
+      bvbeaconid: this.props.people.bvbeaconid, 
+      iconurl: this.props.people.iconurl ,
+      typeid: this.props.people.typeid });
+      this.forceUpdate();
   }
+  */
+/*
+ componentDidUpdate(nextProps){
+  
+  this.setState({ 
+    id: this.props.people.id,
+    badgeid: this.props.people.badgeid,
+    name: this.props.people.name,
+    bvbeaconid: this.props.people.bvbeaconid, 
+    iconurl: this.props.people.iconurl ,
+    typeid: this.props.people.typeid });
+    this.forceUpdate();
+}
+*/
+
+componentWillReceiveProps(nextProps) {
+  console.log('componentWillReceiveProps');
+  this.setState({ 
+    id: nextProps.people.id,
+    badgeid: nextProps.people.badgeid,
+    name: nextProps.people.name,
+    bvbeaconid: nextProps.people.bvbeaconid, 
+    iconurl: nextProps.people.iconurl ,
+    typeid: nextProps.people.typeid });
+    this.forceUpdate();
+}
 
   componentWillMount() {
-    /*
-    if (this.props.people.people === undefined) {
-      this.props.people.people = {
-        id: '',
-        badgeid: '',
-        name: '',
-        bvbeaconid: '',
-        iconurl: '',
-        typeid: ''
-      }
-    }
-    */
 
   }
 
-
-
   render() {
-
-    //const {peopleState} = this.state
-    //console.log('propscomponent',this.props);
-    //const {people}= this.state;
-
-    console.log('render', this.state)
-
-
     return (
       <Fragment>
         <div className="ui two column right grid">
@@ -293,9 +253,6 @@ class People extends Component {
 }
 
 const mapStateToProps = (globalState) => {
-  console.log('mapStateToProps-globalstate', globalState);
-  //console.log('mapStateToProps-state',People.state);
-
   return {
     //id:state.people.id
     people: globalState.people
