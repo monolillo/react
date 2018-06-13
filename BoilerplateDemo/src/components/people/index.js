@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form, Search, Grid, Header } from 'semantic-ui-react';
+import { Input, Button, Form, Search, Grid, Header, Label } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_PEOPLE } from '../../api/URLs';
@@ -25,7 +25,7 @@ class People extends Component {
     this.setState({ [field]: value });
   }
 
-  clearState = () => this.setState({id: 0,badgeid: '',name: '',bvbeaconid: '',iconurl: '',typeid: '' });
+  clearState = () => this.setState({ id: 0, badgeid: '', name: '', bvbeaconid: '', iconurl: '', typeid: '' });
 
   handleCreate = async () => {
     const { history } = this.props;
@@ -120,8 +120,6 @@ class People extends Component {
       })
   }
 
-
-
   setFormBody(details) {
     var formBody = [];
     for (let property in details) {
@@ -132,9 +130,14 @@ class People extends Component {
     return formBody.join("&");
   }
 
-  /*
+    /*
   componentWillReceiveProps() {
     console.log('componentWillReceiveProps');
+  }
+  
+
+   componentDidUpdate(nextProps){
+    
     this.setState({ 
       id: this.props.people.id,
       badgeid: this.props.people.badgeid,
@@ -144,38 +147,25 @@ class People extends Component {
       typeid: this.props.people.typeid });
       this.forceUpdate();
   }
-  */
-/*
- componentDidUpdate(nextProps){
-  
-  this.setState({ 
-    id: this.props.people.id,
-    badgeid: this.props.people.badgeid,
-    name: this.props.people.name,
-    bvbeaconid: this.props.people.bvbeaconid, 
-    iconurl: this.props.people.iconurl ,
-    typeid: this.props.people.typeid });
-    this.forceUpdate();
-}
-*/
 
-componentWillReceiveProps(nextProps) {
+  
+  */
+
+ componentWillReceiveProps(nextProps) {
   console.log('componentWillReceiveProps');
-  this.setState({ 
+  this.setState({
     id: nextProps.people.id,
     badgeid: nextProps.people.badgeid,
     name: nextProps.people.name,
-    bvbeaconid: nextProps.people.bvbeaconid, 
-    iconurl: nextProps.people.iconurl ,
-    typeid: nextProps.people.typeid });
-    this.forceUpdate();
+    bvbeaconid: nextProps.people.bvbeaconid,
+    iconurl: nextProps.people.iconurl,
+    typeid: nextProps.people.typeid
+  });
+  this.forceUpdate();
 }
 
-  componentWillMount() {
-
-  }
-
   render() {
+    
     return (
       <Fragment>
         <div className="ui two column right grid">
@@ -185,16 +175,16 @@ componentWillReceiveProps(nextProps) {
           <div className="column" >
             <Form>
               <Form.Field>
-                <Input
+                <Input label='User id'
                   icon="user"
                   placeholder="Id"
                   onChange={e => this.changeValue('id', e.target.value)}
                   value={this.state.id}
                 />
               </Form.Field>
-
               <Form.Field>
                 <Input
+                  label='User Badge ID'
                   icon="user"
                   placeholder="badgeid"
                   onChange={e => this.changeValue('badgeid', e.target.value)}
@@ -202,36 +192,36 @@ componentWillReceiveProps(nextProps) {
                 />
 
               </Form.Field>
-
               <Form.Field>
                 <Input
+                  label='User Name'
                   icon="user"
                   placeholder="name"
                   onChange={e => this.changeValue('name', e.target.value)}
                   value={this.state.name}
                 />
               </Form.Field>
-
               <Form.Field>
                 <Input
+                  label='User bvbeaconid'
                   icon="user"
                   placeholder="bvbeaconid"
                   onChange={e => this.changeValue('bvbeaconid', e.target.value)}
                   value={this.state.bvbeaconid}
                 />
               </Form.Field>
-
               <Form.Field>
                 <Input
+                  label='User iconurl'
                   icon="user"
                   placeholder="iconurl"
                   onChange={e => this.changeValue('iconurl', e.target.value)}
                   value={this.state.iconurl}
                 />
               </Form.Field>
-
               <Form.Field>
                 <Input
+                  label=' User typeid'
                   icon="user"
                   placeholder="typeid"
                   onChange={e => this.changeValue('typeid', e.target.value)}
@@ -254,10 +244,8 @@ componentWillReceiveProps(nextProps) {
 
 const mapStateToProps = (globalState) => {
   return {
-    //id:state.people.id
     people: globalState.people
   }
 }
 
 export default connect(mapStateToProps)(People);
-//export default People;

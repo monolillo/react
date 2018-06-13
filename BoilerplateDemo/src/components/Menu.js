@@ -31,7 +31,7 @@ class MenuApp extends Component {
           <Dropdown item text="Administration">
             <Dropdown.Menu>
               <Dropdown.Item name="people" to="/people" onClick={this.handleClickItem}>People</Dropdown.Item>
-              <Dropdown.Item name="providers" to="/providers" onClick={this.handleClickItem}>Providers</Dropdown.Item>
+              <Dropdown.Item name="skill" to="/skill" onClick={this.handleClickItem}>Skills</Dropdown.Item>
               <Dropdown.Item name="products" to="/products" onClick={this.handleClickItem}>Products</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
@@ -63,8 +63,7 @@ class MenuApp extends Component {
 
 const mapStateToProps = state => {
   return {
-    active: state.menu.active,
-    clients: state.clients
+    active: state.menu.active
   };
 };
 

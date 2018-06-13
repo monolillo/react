@@ -29,9 +29,7 @@ const Request = {
   },
   async post(params) {
     try {
-      console.log(`${BASE_URL}/${params.url}`, params.data, headers);
       const req = await axios.post(`${BASE_URL}/${params.url}`, params.data, headers);
-      
       const response = { status: req.status, res: req.data };
       return response;
     }
@@ -41,7 +39,6 @@ const Request = {
   },
   async put(params) {
     try {
-      console.log(`${BASE_URL}/${params.url}`, params.data, headers);
       const req = await axios.put(`${BASE_URL}/${params.url}`, params.data, headers);
       const response = { status: req.status, res: req.data };
       return response;
@@ -52,7 +49,6 @@ const Request = {
   },
   async delete(params) {
     try {
-      console.log(`${BASE_URL}/${params.url}`, params.data, headers);
       const req = await axios.delete(`${BASE_URL}/${params.url}`, params.data, headers);
       const response = { status: req.status, res: req.data };
       return response;
