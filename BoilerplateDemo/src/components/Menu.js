@@ -32,7 +32,7 @@ class MenuApp extends Component {
             <Dropdown.Menu>
               <Dropdown.Item name="people" to="/people" onClick={this.handleClickItem}>People</Dropdown.Item>
               <Dropdown.Item name="skill" to="/skill" onClick={this.handleClickItem}>Skills</Dropdown.Item>
-              <Dropdown.Item name="products" to="/products" onClick={this.handleClickItem}>Products</Dropdown.Item>
+              <Dropdown.Item name="station" to="/station" onClick={this.handleClickItem}>Stations</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </Menu.Menu>

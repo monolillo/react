@@ -4,11 +4,12 @@ import { connect } from 'react-redux'
 import { PropTypes } from 'prop-types';
 import { Search, Grid, Header } from 'semantic-ui-react'
 import { withRouter } from 'react-router-dom';
-import { API_URL_PEOPLE, API_URL_SKILLS } from '../../api/URLs';
+import { API_URL_PEOPLE, API_URL_SKILLS, API_URL_STATION } from '../../api/URLs';
 import Request from '../../api/request';
-//import * as searchActions from '../../actions/search';
- import * as peopleActions from '../../actions/people';
- import * as skillActions from '../../actions/skill';
+
+import * as peopleActions from '../../actions/people';
+import * as skillActions from '../../actions/skill';
+import * as stationActions from '../../actions/station';
 
 
 class SearchComponent extends Component {
@@ -73,6 +74,25 @@ class SearchComponent extends Component {
             });
             console.log('Error', error);
           })
+        break;
+      case '/station':
+        const paramsstation = {
+          url: API_URL_STATION
+        }
+        Request.get(paramsstation)
+          .then(response => {
+            if (response.status === 200) {
+              console.log(response.res);
+              this.setState({ searchResults: response.res, searchIsLoading: false, results: response.res });
+            }
+          })
+          .catch(error => {
+            this.refs.notificationSystem.addNotification({
+              message: 'There was an unexpected situation loading information, try again later',
+              level: 'warning'
+            });
+            console.log('Error', error);
+          })
         break
       default:
         this.resetComponent();
@@ -99,17 +119,21 @@ class SearchComponent extends Component {
 
   handleResultSelect = (e, { result }) => {
     const { history } = this.props;
-
+    this.setState({ value: '' })
     switch (history.location.pathname) {
       case '/people':
         this.props.setPeopleFromSearch(result)
         break;
       case '/skill':
-      this.props.setSkillFromSearch(result)
+        this.props.setSkillFromSearch(result)
+        break;
+      case '/station':
+        this.props.setStationFromSearch(result)
         break;
       default:
         break;
     }
+   
   }
 
   handleClick = (e) => {
@@ -126,9 +150,9 @@ class SearchComponent extends Component {
             onFocus={this.handleClick}
             results={this.state.results}
             resultRenderer={
-              ({ id, name, badgeid, title }) => [
+              ({ id, name, badgeid, bvblufiid }) => [
                 <div key='id' className='content'>
-                  {badgeid && <div className='price'>{badgeid}</div>}
+                  {badgeid && <div className='price'>{id}</div>}
                   {name && <div className='title'>{name}</div>}
                 </div>,
               ]
@@ -149,13 +173,15 @@ function mapDispatchToProps(dispatch) {
   return {
     setPeopleFromSearch: (people) => dispatch({ type: 'SET_PEOPLE_FROM_SEARCH', payload: people }),
     setSkillFromSearch: (skill) => dispatch({ type: 'SET_SKILL_FROM_SEARCH', payload: skill }),
+    setStationFromSearch: (station) => dispatch({ type: 'SET_STATION_FROM_SEARCH', payload: station }),
   }
 }
 
 function mapStateToProps(state) {
   return {
     people: state.people,
-    skill: state.skill
+    skill: state.skill,
+    station: state.station
   }
 }
 

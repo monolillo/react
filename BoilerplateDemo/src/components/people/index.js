@@ -1,11 +1,9 @@
-import _ from 'lodash';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form, Search, Grid, Header, Label } from 'semantic-ui-react';
+import { Input, Button, Form } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_PEOPLE } from '../../api/URLs';
-
 
 class People extends Component {
 
@@ -18,7 +16,13 @@ class People extends Component {
       name: '',
       bvbeaconid: '',
       iconurl: '',
-      typeid: ''
+      typeid: '',
+      idError: false,
+      badgeidError: false,
+      nameError: false,
+      bvbeaconidError: false,
+      formError: false,
+      errorMessage: 'Please complete all required fields.',
     };
   }
   changeValue(field, value) {
@@ -28,7 +32,10 @@ class People extends Component {
   clearState = () => this.setState({ id: 0, badgeid: '', name: '', bvbeaconid: '', iconurl: '', typeid: '' });
 
   handleCreate = async () => {
-    const { history } = this.props;
+    if (this.formHasErrors('CREATE')) {
+      return;
+    }
+   
     const { badgeid, name, bvbeaconid } = this.state;
 
     const details = {
@@ -37,8 +44,6 @@ class People extends Component {
       bvbeaconid: bvbeaconid
     }
 
-    const formBody = await this.setFormBody(details);
-
     Request.post({
       url: API_URL_PEOPLE + '/new',
       data: details
@@ -46,7 +51,7 @@ class People extends Component {
       .then(response => {
         if (response.status === 201) {
           this.refs.notificationSystem.addNotification({
-            message: 'funciono',
+            message: 'Success',
             level: 'success'
           });
           this.clearState();
@@ -54,7 +59,7 @@ class People extends Component {
       })
       .catch(error => {
         this.refs.notificationSystem.addNotification({
-          message: 'Invalid user, check your data and try again',
+          message: 'There was an unexpected situation, try again later',
           level: 'warning'
         });
         console.log('Error', error);
@@ -62,7 +67,10 @@ class People extends Component {
   }
 
   handleUpdate = async () => {
-    const { history } = this.props;
+    if (this.formHasErrors('UPDATE')) {
+      return;
+    }
+
     const { id, badgeid, name, bvbeaconid } = this.state;
 
     const details = {
@@ -70,9 +78,7 @@ class People extends Component {
       name: name,
       bvbeaconid: bvbeaconid
     }
-
-    const formBody = await this.setFormBody(details);
-
+    
     Request.put({
       url: API_URL_PEOPLE + '/' + id + '/update',
       data: details
@@ -80,7 +86,7 @@ class People extends Component {
       .then(response => {
         if (response.status === 204) {
           this.refs.notificationSystem.addNotification({
-            message: 'funciono',
+            message: 'Success',
             level: 'success'
           });
           this.clearState();
@@ -88,7 +94,7 @@ class People extends Component {
       })
       .catch(error => {
         this.refs.notificationSystem.addNotification({
-          message: 'Invalid user, check your data and try again',
+          message: 'There was an unexpected situation, try again later',
           level: 'warning'
         });
         console.log('Error', error);
@@ -96,7 +102,9 @@ class People extends Component {
   }
 
   handleDelete = async () => {
-    const { history } = this.props;
+    if (this.formHasErrors('DELETE')) {
+      return;
+    }
     const { id } = this.state;
 
     Request.delete({
@@ -105,7 +113,7 @@ class People extends Component {
       .then(response => {
         if (response.status === 200) {
           this.refs.notificationSystem.addNotification({
-            message: 'funciono',
+            message: 'Success',
             level: 'success'
           });
           this.clearState();
@@ -113,59 +121,76 @@ class People extends Component {
       })
       .catch(error => {
         this.refs.notificationSystem.addNotification({
-          message: 'Invalid user, check your data and try again',
+          message: 'There was an unexpected situation, try again later',
           level: 'warning'
         });
         console.log('Error', error);
       })
   }
 
-  setFormBody(details) {
-    var formBody = [];
-    for (let property in details) {
-      var encodedKey = encodeURIComponent(property);
-      var encodedValue = encodeURIComponent(details[property]);
-      formBody.push(encodedKey + "=" + encodedValue);
-    };
-    return formBody.join("&");
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      id: nextProps.people.id,
+      badgeid: nextProps.people.badgeid,
+      name: nextProps.people.name,
+      bvbeaconid: nextProps.people.bvbeaconid,
+      iconurl: nextProps.people.iconurl,
+      typeid: nextProps.people.typeid
+    });
+    this.forceUpdate();
   }
 
-    /*
-  componentWillReceiveProps() {
-    console.log('componentWillReceiveProps');
+  formHasErrors(originator) {
+    let error = false;
+    switch (originator) {
+      case 'CREATE':
+      case 'UPDATE':
+        if (this.state.badgeid === '') {
+          this.setState({ badgeidError: true })
+          error = true
+          return error;
+        } else {
+          this.setState({ badgeidError: false })
+          error = false
+        }
+
+        if (this.state.name === '') {
+          this.setState({ nameError: true })
+          error = true
+          return error;
+        } else {
+          this.setState({ nameError: false })
+          error = false
+        }
+
+        if (this.state.bvbeaconid === '') {
+          this.setState({ bvbeaconidError: true })
+          error = true
+          return error;
+        } else {
+          this.setState({ bvbeaconidError: false })
+          error = false
+        }
+        break;
+
+      case 'DELETE':
+        if (this.state.ID === 0) {
+          this.setState({ idError: true })
+          error = true
+          return error;
+        } else {
+          this.setState({ badgeidError: false })
+          error = false
+        }
+        break;
+      default:
+        break;
+    }
+    return error;
   }
-  
-
-   componentDidUpdate(nextProps){
-    
-    this.setState({ 
-      id: this.props.people.id,
-      badgeid: this.props.people.badgeid,
-      name: this.props.people.name,
-      bvbeaconid: this.props.people.bvbeaconid, 
-      iconurl: this.props.people.iconurl ,
-      typeid: this.props.people.typeid });
-      this.forceUpdate();
-  }
-
-  
-  */
-
- componentWillReceiveProps(nextProps) {
-  console.log('componentWillReceiveProps');
-  this.setState({
-    id: nextProps.people.id,
-    badgeid: nextProps.people.badgeid,
-    name: nextProps.people.name,
-    bvbeaconid: nextProps.people.bvbeaconid,
-    iconurl: nextProps.people.iconurl,
-    typeid: nextProps.people.typeid
-  });
-  this.forceUpdate();
-}
 
   render() {
-    
+
     return (
       <Fragment>
         <div className="ui two column right grid">
@@ -175,44 +200,53 @@ class People extends Component {
           <div className="column" >
             <Form>
               <Form.Field>
-                <Input label='User id'
+                <label>User id</label>
+                <Input
+                  disabled
                   icon="user"
                   placeholder="Id"
+                  required={true}
                   onChange={e => this.changeValue('id', e.target.value)}
                   value={this.state.id}
                 />
               </Form.Field>
               <Form.Field>
+                <label>User Badge ID</label>
                 <Input
-                  label='User Badge ID'
                   icon="user"
                   placeholder="badgeid"
+                  required={true}
+                  error={this.state.badgeidError}
                   onChange={e => this.changeValue('badgeid', e.target.value)}
                   value={this.state.badgeid}
                 />
 
               </Form.Field>
               <Form.Field>
+                <label>User Name</label>
                 <Input
-                  label='User Name'
                   icon="user"
                   placeholder="name"
+                  required={true}
+                  error={this.state.nameError}
                   onChange={e => this.changeValue('name', e.target.value)}
                   value={this.state.name}
                 />
               </Form.Field>
               <Form.Field>
+                <label>User bvbeaconid</label>
                 <Input
-                  label='User bvbeaconid'
                   icon="user"
                   placeholder="bvbeaconid"
+                  required={true}
+                  error={this.state.bvbeaconidError}
                   onChange={e => this.changeValue('bvbeaconid', e.target.value)}
                   value={this.state.bvbeaconid}
                 />
               </Form.Field>
               <Form.Field>
+                <label>User iconurl</label>
                 <Input
-                  label='User iconurl'
                   icon="user"
                   placeholder="iconurl"
                   onChange={e => this.changeValue('iconurl', e.target.value)}
@@ -220,8 +254,8 @@ class People extends Component {
                 />
               </Form.Field>
               <Form.Field>
+                <label>User typeid</label>
                 <Input
-                  label=' User typeid'
                   icon="user"
                   placeholder="typeid"
                   onChange={e => this.changeValue('typeid', e.target.value)}
@@ -230,8 +264,9 @@ class People extends Component {
               </Form.Field>
               <Form.Field>
                 {this.state.id === 0 && <Button fluid primary onClick={this.handleCreate}>Create</Button>}
-                {this.state.id != 0 && <Button fluid secondary onClick={this.handleUpdate}>Update</Button>}
-                {this.state.id != 0 && <Button fluid danger onClick={this.handleDelete}>Delete</Button>}
+                {this.state.id !== 0 && <Button fluid primary onClick={this.handleUpdate}>Update</Button>}
+                {this.state.id !== 0 && <Button fluid secondary onClick={this.handleDelete}>Delete</Button>}
+                <Button fluid secondary onClick={this.clearState}>Clear</Button>
               </Form.Field>
             </Form>
           </div>

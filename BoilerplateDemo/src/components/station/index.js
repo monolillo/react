@@ -3,37 +3,40 @@ import { connect } from 'react-redux'
 import { Input, Button, Form } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
-import { API_URL_SKILLS } from '../../api/URLs';
+import { API_URL_STATION } from '../../api/URLs';
 
-class Skill extends Component {
+class Station extends Component {
     constructor() {
         super();
         this.state = {
             id: 0,
             name: '',
+            bvblufiid:0,
+            idError:false,
             nameError: false,
+            bvblufiidError: false,
             formError: false,
-            errorMessage: 'Please complete all required fields.',
+            errorMessage: 'Please complete all required fields.'
         };
     }
     changeValue(field, value) {
         this.setState({ [field]: value });
     }
 
-
-    clearState = () => this.setState({ id: 0, name: '' });
+    clearState = () => this.setState({ id: 0, name: '',bvblufiid:0 });
 
     handleCreate = async () => {
         if (this.formHasErrors('CREATE')) {
             return;
         }
-        const { name } = this.state;
+        const { name,bvblufiid } = this.state;
         const details = {
-            name: name
+            name: name,
+            bvblufiid:bvblufiid
         }
 
         Request.post({
-            url: API_URL_SKILLS + '/new',
+            url: API_URL_STATION + '/new',
             data: details
         })
             .then(response => {
@@ -58,14 +61,15 @@ class Skill extends Component {
         if (this.formHasErrors('UPDATE')) {
             return;
         }
-        const { id, name } = this.state;
+        const { id, name ,bvblufiid} = this.state;
 
         const details = {
-            name: name
+            name: name,
+            bvblufiid:bvblufiid
         }
 
         Request.put({
-            url: API_URL_SKILLS + '/' + id + '/update',
+            url: API_URL_STATION + '/' + id + '/update',
             data: details
         })
             .then(response => {
@@ -93,7 +97,7 @@ class Skill extends Component {
         const { id } = this.state;
 
         Request.delete({
-            url: API_URL_SKILLS + '/' + id + '/delete',
+            url: API_URL_STATION + '/' + id + '/delete',
         })
             .then(response => {
                 if (response.status === 200) {
@@ -115,8 +119,9 @@ class Skill extends Component {
 
     componentWillReceiveProps(nextProps) {
         this.setState({
-            id: nextProps.skill.id,
-            name: nextProps.skill.name
+            id: nextProps.station.id,
+            name: nextProps.station.name,
+            bvblufiid:nextProps.station.bvblufiid
         });
         this.forceUpdate();
     }
@@ -126,13 +131,20 @@ class Skill extends Component {
         switch (originator) {
             case 'CREATE':
             case 'UPDATE':
-
                 if (this.state.name === '') {
                     this.setState({ nameError: true })
                     error = true
                     return error;
                 } else {
                     this.setState({ nameError: false })
+                    error = false
+                }
+                if (this.state.bvblufiid === '') {
+                    this.setState({ bvblufiidError: true })
+                    error = true
+                    return error;
+                } else {
+                    this.setState({ bvblufiidError: false })
                     error = false
                 }
                 break;
@@ -142,7 +154,7 @@ class Skill extends Component {
                     error = true
                     return error;
                 } else {
-                    this.setState({ badgeidError: false })
+                    this.setState({ idError: false })
                     error = false
                 }
                 break;
@@ -161,7 +173,7 @@ class Skill extends Component {
                     <div className="column" >
                         <Form>
                             <Form.Field>
-                                <label>Skill ID</label>
+                                <label>Station ID</label>
                                 <Input
                                     disabled
                                     icon="user"
@@ -172,7 +184,7 @@ class Skill extends Component {
                                 />
                             </Form.Field>
                             <Form.Field>
-                                <label>Skill Name</label>
+                                <label>Station Name</label>
                                 <Input
                                     icon="user"
                                     placeholder="name"
@@ -180,6 +192,17 @@ class Skill extends Component {
                                     error={this.state.nameError}
                                     onChange={e => this.changeValue('name', e.target.value)}
                                     value={this.state.name}
+                                />
+                            </Form.Field>
+                            <Form.Field>
+                                <label>Station bvblufiid</label>
+                                <Input
+                                    icon="user"
+                                    placeholder="bvblufiid"
+                                    required={true}
+                                    error={this.state.bvblufiidError}
+                                    onChange={e => this.changeValue('bvblufiid', e.target.value)}
+                                    value={this.state.bvblufiid}
                                 />
                             </Form.Field>
                             <Form.Field>
@@ -199,8 +222,8 @@ class Skill extends Component {
 
 const mapStateToProps = (globalState) => {
     return {
-        skill: globalState.skill
+        station: globalState.station
     }
 }
 
-export default connect(mapStateToProps)(Skill);
+export default connect(mapStateToProps)(Station);
