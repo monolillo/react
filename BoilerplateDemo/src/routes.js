@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import App from './components/App';
+import Livemap from './components/livemap';
+import Stationskill from './components/stationskills';
 import People from './components/people';
 import Skill from './components/skill';
 import Station from './components/station';
@@ -16,6 +18,8 @@ class RoutesApp extends Component {
         <Switch>
           <App>
             <Route path="/" exact component={Home} />
+            <Route path="/livemap" component={Livemap} />
+            <Route path="/stationskill" component={Stationskill} />
             <Route path="/people" component={People} />
             <Route path="/skill" component={Skill} />
             <Route path="/station" component={Station} />

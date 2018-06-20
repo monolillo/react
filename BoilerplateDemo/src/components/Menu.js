@@ -33,9 +33,11 @@ class MenuApp extends Component {
               <Dropdown.Item name="people" to="/people" onClick={this.handleClickItem}>People</Dropdown.Item>
               <Dropdown.Item name="skill" to="/skill" onClick={this.handleClickItem}>Skills</Dropdown.Item>
               <Dropdown.Item name="station" to="/station" onClick={this.handleClickItem}>Stations</Dropdown.Item>
+              <Dropdown.Item name="stationskill" to="/stationskill" onClick={this.handleClickItem}>Stations - Skills</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </Menu.Menu>
+        <Menu.Item name="livemap" to="/livemap" active={active === "livemap"} onClick={this.handleClickItem} />
         <Menu.Item name="blabla" to="/blabla" active={active === "blabla"} onClick={this.handleClickItem} />
         <Menu.Menu position="right">
           <Menu.Item>

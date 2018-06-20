@@ -190,7 +190,8 @@ class People extends Component {
   }
 
   render() {
-
+    const { history,nombreVariable } = this.props; 
+    console.log(this.state);
     return (
       <Fragment>
         <div className="ui two column right grid">
