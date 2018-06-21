@@ -1,6 +1,7 @@
 
 //var BACKEND_URI = 'http://localhost:8080/rest'
-var BACKEND_URI = 'http://neorisrest.us-east-1.elasticbeanstalk.com'
+//var BACKEND_URI = 'http://neorisrest.us-east-1.elasticbeanstalk.com'
+var BACKEND_URI = 'https://eluxengine.azurewebsites.net'
 var WEBSOCKET_ENDPOINT = BACKEND_URI + "/chat";    
 var WEBSOCKET_TOPIC = '/topic/assets';    
 
@@ -22,10 +23,6 @@ layerInfoList = [
                         <p class='niceText'>${asset.role}<br> \
                             Current Task: ${asset.task}<br> \
                             ${asset.status}<br> \
-                            Vibration: <br>\
-                            &nbsp;&nbsp;&nbsp;&nbsp;PkX: <span id='pkX'>${pkX}</span><br> \
-                            &nbsp;&nbsp;&nbsp;&nbsp;PkY: <span id='pkY'>${pkY}</span><br> \
-                            &nbsp;&nbsp;&nbsp;&nbsp;PkZ: <span id='pkZ'>${pkZ}</span><br> \
                             Longitude: ${asset.location.longitude}<br> \
                             Latitude: ${asset.location.latitude}<br> \
                             Mode: ${asset.location.mode} / Accuracy: ${asset.location.accuracy} \
