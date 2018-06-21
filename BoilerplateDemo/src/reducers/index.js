@@ -4,11 +4,13 @@ import station from './station';
 import people from './people';
 // import searchcomponent from './search';
 import menu from './menu';
+import menumobile from './menu';
 
 export default combineReducers({
   //searchcomponent,
   station,
   skill,
   people,
-  menu
+  menu,
+  menumobile
 });

@@ -1,13 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import Menu from './Menu';
+import MenuMobile from './MenuMobile';
 import Auth from '../config/session';
 import Login from './login';
-import { Container } from 'semantic-ui-react';
+import { Container, Responsive } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 
 class App extends Component {
 
-  renderLogin() {
+  renderLogin() {
     return (
       <Fragment>
         <Login />
@@ -18,10 +19,19 @@ class App extends Component {
   renderContent() {
     return (
       <Fragment>
-        <Menu />
-        <Container>
-          {this.props.children}
-        </Container>
+        <Responsive {...Responsive.onlyMobile}>
+          <MenuMobile>
+            <Container>
+              {this.props.children}
+            </Container>
+          </MenuMobile>
+        </Responsive>
+        <Responsive minWidth={Responsive.onlyTablet.minWidth}>
+          <Menu />
+          <Container>
+            {this.props.children}
+          </Container>
+        </Responsive>
       </Fragment>
     );
   }
