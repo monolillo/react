@@ -1,0 +1,36 @@
+# This is a sample build configuration for Java (Maven).
+# Check our guides at https://confluence.atlassian.com/x/zd-5Mw for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: node:8.11.1
+
+pipelines:
+#  default:
+#    - step:
+#        name: Build and test    
+#        caches:
+#          - yarn
+#        script:
+#          - yarn install
+#          - yarn run build
+  branches:
+    test:
+      - step:
+          name: Build and test    
+          deployment: test
+          caches:
+            - yarn
+            - zip
+          script:
+            - yarn install
+            - yarn run build
+            - cd public
+            - '[ ! -f ~/zip/zip ] && apt-get update && apt-get install -y zip && mkdir zip && cp /usr/bin/zip ~/zip'
+            - ~/zip/zip -r $DEPLOY_FILENAME .
+            - curl -X POST -u "$DEPLOY_USERNAME:$DEPLOY_PWD" --data-binary @"$DEPLOY_FILENAME" $DEPLOY_URL
+
+definitions:
+  caches:
+    yarn: /usr/local/share/.cache/yarn/v1
+    zip: ~/zip
