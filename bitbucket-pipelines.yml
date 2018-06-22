@@ -24,6 +24,7 @@ pipelines:
             - zip
           script:
             - yarn install
+            - unset CI
             - yarn run build
             - cd public
             - '[ ! -f ~/zip/zip ] && apt-get update && apt-get install -y zip && mkdir zip && cp /usr/bin/zip ~/zip'
