@@ -26,7 +26,7 @@ pipelines:
             - yarn install
             - unset CI
             - yarn run build
-            - cd public
+            - cd build
             - '[ ! -f ~/zip/zip ] && apt-get update && apt-get install -y zip && mkdir zip && cp /usr/bin/zip ~/zip'
             - ~/zip/zip -r $DEPLOY_FILENAME .
             - curl -X POST -u "$DEPLOY_USERNAME:$DEPLOY_PWD" --data-binary @"$DEPLOY_FILENAME" $DEPLOY_URL
