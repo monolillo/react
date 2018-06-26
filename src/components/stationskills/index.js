@@ -1,207 +1,256 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form,Dropdown } from 'semantic-ui-react';
+import { Input, Button, Form, Dropdown } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
-import { API_URL_PEOPLE } from '../../api/URLs';
+import { API_URL_SKILLS, API_URL_STATION } from '../../api/URLs';
+import SearchComponent from '../search';
 
 class StationSkill extends Component {
-    constructor() {
-        super();
-        this.state = {
-            id: 0,
-            name: '',
-            nameError: false,
-            formError: false,
-            errorMessage: 'Please complete all required fields.',
-            skills: [
-                {
-                    "key": "1",
-                    "text": "Skill 1",
-                    "value": "Skill1"
-                  },
-                  {
-                    "key": "2",
-                    "text": "Skill 2",
-                    "value": "Skill2"
-                  },
-                  {
-                    "key": "3",
-                    "text": "Skill 3",
-                    "value": "Skill4"
-                  },
-                  {
-                    "key": "4",
-                    "text": "Skill 4",
-                    "value": "Skill4"
-                  },
-                  {
-                    "key": "5",
-                    "text": "Skill 5",
-                    "value": "Skill5"
-                  },
-                  {
-                    "key": "6",
-                    "text": "Skill 6",
-                    "value": "Skill6"
-                  },
-                  {
-                    "key": "7",
-                    "text": "Skill 7",
-                    "value": "Skill7"
-                  },
-                  {
-                    "key": "8",
-                    "text": "Skill 8",
-                    "value": "Skill8"
-                  },
-                  {
-                    "key": "9",
-                    "text": "Skill 9",
-                    "value": "Skill9"
-                  },
-                  {
-                    "key": "10",
-                    "text": "Skill 10 ",
-                    "value": "Skill10"
-                  },
-                  {
-                    "key": "11",
-                    "text": "Skill 11",
-                    "value": "Skill11"
-                  },
-                  {
-                    "key": "12",
-                    "text": "Skill 12",
-                    "value": "Skill12"
-                  },{
-                    "key": "13",
-                    "text": "Skill 13",
-                    "value": "Skill13"
-                  },
-                  {
-                    "key": "14",
-                    "text": "Skill 14",
-                    "value": "Skill14"
-                  },
-                  {
-                    "key": "15",
-                    "text": "Skill 15",
-                    "value": "Skill15"
-                  }
-                  ,{
-                    "key": "16",
-                    "text": "Skill 16",
-                    "value": "Skill16"
-                  },
-                  {
-                    "key": "17",
-                    "text": "Skill 17",
-                    "value": "Skill17"
-                  },
-                  {
-                    "key": "18",
-                    "text": "Skill 18",
-                    "value": "Skill18"
-                  },{
-                    "key": "19",
-                    "text": "Skill 19",
-                    "value": "Skill19"
-                  },
-                  {
-                    "key": "20",
-                    "text": "Skill 20",
-                    "value": "Skill20"
-                  },
-                  {
-                    "key": "21",
-                    "text": "Skill 21",
-                    "value": "Skill 22"
-                  }
-            ],
-            searchQuery:''
-        };
+  constructor() {
+    super();
+    this.state = {
+      id: 0,
+      name: '',
+      nameError: false,
+      formError: false,
+      errorMessage: 'Please complete all required fields.',
+      skills: [],
+      mapSkills: [],
+      searchQuery: '',
+      loadingSkills: true,
+      selectedSkills: [],
+      savedSkills: []
+    };
+  }
+
+
+  changeValue(field, value) {
+    this.setState({ [field]: value });
+  }
+
+  componentWillMount() {
+    this.loadSkills();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      id: nextProps.station.id,
+      name: nextProps.station.name
+    });
+    this.forceUpdate();
+    this.loadStationSkills(nextProps.station.id);
+  }
+
+  clearState = () => this.setState({
+    id: 0, name: '', nameError: false, formError: false, mapSkills: [],
+    loadingSkills: false, selectedSkills: [], savedSkills: []
+  });
+
+  loadStationSkills(stationid) {
+    const paramsskill = {
+      url: API_URL_STATION + '/' + stationid + '/skills'
     }
-
-
-    changeValue(field, value) {
-        this.setState({ [field]: value });
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState({
-            id: nextProps.skill.id,
-            name: nextProps.skill.name
+    Request.get(paramsskill)
+      .then(response => {
+        if (response.status === 200) {
+          const options = response.res.map(skill => skill.id);
+          this.setState({ selectedSkills: options,savedSkills:options })
+        }
+      })
+      .catch(error => {
+        this.refs.notificationSystem.addNotification({
+          message: 'There was an unexpected situation loading information, try again later',
+          level: 'warning'
         });
-        this.forceUpdate();
+        console.log('Error', error);
+      })
+  }
+
+  loadSkills() {
+    const paramsskill = {
+      url: API_URL_SKILLS
     }
+    Request.get(paramsskill)
+      .then(response => {
+        if (response.status === 200) {
+          this.setState({ skills: response.res, skillsCopy: response.res, loadingSkills: false });
+          const { skills } = this.state;
+          const options = skills.map(({ id, name }) => ({ value: id, text: name }))
+          this.setState({ skills: options })
+        }
+      })
+      .catch(error => {
+        this.refs.notificationSystem.addNotification({
+          message: 'There was an unexpected situation loading information, try again later',
+          level: 'warning'
+        });
+        console.log('Error', error);
+      })
+  }
 
-    clearState = () => this.setState({ id: 0, name: '' });
-
-
-
-
-    render() {
-        const { skills,searchQuery } = this.state;
-        const renderLabel = label => ({
-            color: 'blue',
-            content: `Customized label - ${label.text}`,
-            icon: 'check',
-          })
-        return (
-            <Fragment>
-                <div className="ui two column right grid">
-                </div>
-                <div className="ui one column centered grid">
-                    <div className="column" >
-                        <Form>
-                            <Form.Field>
-                                <label>Skill ID</label>
-                                <Input
-                                    disabled
-                                    icon="user"
-                                    placeholder="Id"
-                                    required={true}
-                                    onChange={e => this.changeValue('id', e.target.value)}
-                                    value={this.state.id}
-                                />
-                            </Form.Field>
-                            <Form.Field>
-                                <label>Skill Name</label>
-                                <Input
-                                    icon="user"
-                                    placeholder="name"
-                                    required={true}
-                                    error={this.state.nameError}
-                                    onChange={e => this.changeValue('name', e.target.value)}
-                                    value={this.state.name}
-                                />
-                            </Form.Field>
-                            <Form.Field>
-                                <label>Skill Selection</label>
-                                <Dropdown
-                                    multiple
-                                    selection
-                                    fluid
-                                    options={skills}
-                                    placeholder='Choose one or multiple skills'
-                                    renderLabel={renderLabel}
-                                    search
-                                />
-                            </Form.Field>
-                        </Form>
-                    </div>
-                </div>
-                <NotificationSystem ref="notificationSystem" />
-            </Fragment>
-        );
+  handleCreate = async () => {
+    if (this.formHasErrors('CREATE')) {
+      return;
     }
+    const { id, selectedSkills } = this.state;
+    const jsonSelectedSkills = selectedSkills.map(value => ({ 'id': value }));
+
+    Request.post({
+      url: API_URL_STATION + '/' + id + '/skills',
+      data: jsonSelectedSkills
+    })
+      .then(response => {
+        if (response.status === 201) {
+          this.refs.notificationSystem.addNotification({
+            message: 'Success',
+            level: 'success'
+          });
+          this.clearState();
+        }
+      })
+      .catch(error => {
+        this.refs.notificationSystem.addNotification({
+          message: 'There was an unexpected situation, try again later',
+          level: 'warning'
+        });
+        console.log('Error', error);
+      })
+  }
+
+  handleDelete = async () => {
+    if (this.formHasErrors('DELETE')) {
+      return;
+    }
+    const { id } = this.state;
+
+    Request.post({
+      url: API_URL_STATION + '/' + id + '/skills',
+      data: []
+    })
+      .then(response => {
+        if (response.status === 201) {
+          this.refs.notificationSystem.addNotification({
+            message: 'Success',
+            level: 'success'
+          });
+          this.clearState();
+        }
+      })
+      .catch(error => {
+        this.refs.notificationSystem.addNotification({
+          message: 'There was an unexpected situation, try again later',
+          level: 'warning'
+        });
+        console.log('Error', error);
+      })
+  }
+
+  formHasErrors(originator) {
+    let error = false;
+    switch (originator) {
+      case 'CREATE':
+      case 'UPDATE':
+        if (this.state.id === 0) {
+          this.setState({ nameError: true })
+          error = true
+          return error;
+        } else {
+          this.setState({ nameError: false })
+          error = false
+        }
+      case 'DELETE':
+        if (this.state.ID === 0) {
+          this.setState({ idError: true })
+          error = true
+          return error;
+        } else {
+          this.setState({ idError: false })
+          error = false
+        }
+        break;
+      default:
+        break;
+    }
+    return error;
+  }
+
+
+  render() {
+    const { skills, loadingSkills, selectedSkills, savedSkills } = this.state;
+    const renderLabel = label => ({
+      color: 'blue',
+      content: `${label.text}`,
+      icon: 'check',
+    })
+
+    return (
+      <Fragment>
+        <div className="ui one column centered grid">
+          <div className="column" >
+            <Form.Field>
+              {/* <label>Search</label>
+              <SearchComponent /> */}
+            </Form.Field>
+            <Form>
+              <Form.Field>
+                <label>Station ID</label>
+                <Input
+                  disabled
+                  icon="user"
+                  placeholder="Id"
+                  required={true}
+                  onChange={e => this.changeValue('id', e.target.value)}
+                  value={this.state.id}
+                />
+              </Form.Field>
+              <Form.Field>
+                <label>Station Name</label>
+                <Input
+                  disabled
+                  icon="user"
+                  placeholder="name"
+                  required={true}
+                  error={this.state.nameError}
+                  onChange={e => this.changeValue('name', e.target.value)}
+                  value={this.state.name}
+                />
+              </Form.Field>
+              <Form.Field>
+                <label>Skill Selection</label>
+                <Dropdown
+                  multiple
+                  selection
+                  fluid
+                  options={skills}
+                  placeholder='Choose one or multiple skills'
+                  renderLabel={renderLabel}
+                  search
+                  loading={loadingSkills}
+                  onChange={(e, { value }) => this.changeValue('selectedSkills', value)}
+                  value={selectedSkills}
+                />
+              </Form.Field>
+              <Form.Field>
+                {savedSkills.length === 0 && <Button fluid primary onClick={this.handleCreate}>Create</Button>}
+                {savedSkills.length !== 0 && <Button fluid secondary onClick={this.handleCreate}>Update</Button>}
+                {savedSkills.length !== 0 && <Button fluid danger onClick={this.handleDelete}>Delete</Button>}
+                <Button fluid secondary onClick={this.clearState}>Clear</Button>
+              </Form.Field>
+            </Form>
+          </div>
+        </div>
+
+        <NotificationSystem ref="notificationSystem" />
+      </Fragment>
+    );
+  }
 }
 
 const mapStateToProps = (globalState) => {
-    return {
-        skill: globalState.skill
-    }
+  return {
+    station: globalState.station
+  }
 }
 
 export default connect(mapStateToProps)(StationSkill);

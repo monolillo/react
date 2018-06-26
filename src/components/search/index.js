@@ -76,13 +76,13 @@ class SearchComponent extends Component {
           })
         break;
       case '/station':
+      case '/stationskill':
         const paramsstation = {
           url: API_URL_STATION
         }
         Request.get(paramsstation)
           .then(response => {
             if (response.status === 200) {
-              console.log(response.res);
               this.setState({ searchResults: response.res, searchIsLoading: false, results: response.res });
             }
           })
@@ -119,7 +119,7 @@ class SearchComponent extends Component {
 
   handleResultSelect = (e, { result }) => {
     const { history } = this.props;
-    this.setState({ value: '' })
+    this.setState({ searchValue: '' })
     switch (history.location.pathname) {
       case '/people':
         this.props.setPeopleFromSearch(result)
@@ -128,12 +128,13 @@ class SearchComponent extends Component {
         this.props.setSkillFromSearch(result)
         break;
       case '/station':
+      case '/stationskill':
         this.props.setStationFromSearch(result)
         break;
       default:
         break;
     }
-   
+
   }
 
   handleClick = (e) => {
@@ -143,28 +144,25 @@ class SearchComponent extends Component {
   render() {
     const { isLoading, value, results } = this.state
     return (
-      <Grid>
-        <Grid.Column width={8}>
-          <Search on
-            loading={this.state.searchIsLoading}
-            onFocus={this.handleClick}
-            results={this.state.results}
-            resultRenderer={
-              ({ id, name, badgeid, bvblufiid }) => [
-                <div key='id' className='content'>
-                  {badgeid && <div className='price'>{id}</div>}
-                  {name && <div className='title'>{name}</div>}
-                </div>,
-              ]
-            }
-            title=''
-            //value=''
-            onResultSelect={this.handleResultSelect}
-            onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true })}
-            {...this.props}
-          />
-        </Grid.Column>
-      </Grid>
+      <div>
+        <Search on
+          loading={this.state.searchIsLoading}
+          onFocus={this.handleClick}
+          results={this.state.results}
+          resultRenderer={
+            ({ id, name, badgeid, bvblufiid }) => [
+              <div key='id' className='content'>
+                {badgeid && <div className='price'>{id}</div>}
+                {name && <div className='title'>{name}</div>}
+              </div>,
+            ]
+          }
+          title=''
+          onResultSelect={this.handleResultSelect}
+          onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true })}
+          {...this.props}
+        />
+      </div>
     )
   }
 }
