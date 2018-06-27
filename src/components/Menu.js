@@ -44,6 +44,7 @@ class MenuApp extends Component {
                   <Dropdown.Item name="skill" to="/skill" onClick={this.handleClickItem}>Skills</Dropdown.Item>
                   <Dropdown.Item name="station" to="/station" onClick={this.handleClickItem}>Stations</Dropdown.Item>
                   <Dropdown.Item name="stationskill" to="/stationskill" onClick={this.handleClickItem}>Stations - Skills</Dropdown.Item>
+                  <Dropdown.Item name="peopleskill" to="/peopleskill" onClick={this.handleClickItem}>People - Skills</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </Menu.Menu>

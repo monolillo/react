@@ -58,6 +58,7 @@ class MenuAppMobile extends Component {
                         <Menu.Item name="skill" to="/skill" active={active === "skill"} onClick={this.handleClickItem} />
                         <Menu.Item name="station" to="/station" active={active === "station"} onClick={this.handleClickItem} />
                         <Menu.Item name="stationskill" to="/stationskill" active={active === "stationskill"} onClick={this.handleClickItem} />
+                        <Menu.Item name="peopleskill" to="/peopleskill" active={active === "peopleskill"} onClick={this.handleClickItem} />
                         <Menu.Item name="livemap" to="/livemap" active={active === "livemap"} onClick={this.handleClickItem} />
                         <Divider/>
                         <Menu.Item name="users" to="/users" active={active === "users"} onClick={this.handleClickItem} />

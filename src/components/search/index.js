@@ -40,6 +40,7 @@ class SearchComponent extends Component {
       case '/':
         break;
       case '/people':
+      case '/peopleskill':
         const params = {
           url: API_URL_PEOPLE
         }
@@ -122,6 +123,7 @@ class SearchComponent extends Component {
     this.setState({ searchValue: '' })
     switch (history.location.pathname) {
       case '/people':
+      case '/peopleskill':
         this.props.setPeopleFromSearch(result)
         break;
       case '/skill':
