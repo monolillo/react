@@ -5,6 +5,8 @@ import Auth from '../config/session';
 import Login from './login';
 import { Container, Responsive } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
+import '../App.css';
+ 
 
 class App extends Component {
 
@@ -18,21 +20,21 @@ class App extends Component {
 
   renderContent() {
     return (
-      <Fragment>
-        <Responsive {...Responsive.onlyMobile}>
+    <div className="appContainer">
+        <Responsive {...Responsive.onlyMobile} className="appContainer">
           <MenuMobile>
             <Container>
               {this.props.children}
             </Container>
           </MenuMobile>
         </Responsive>
-        <Responsive minWidth={Responsive.onlyTablet.minWidth}>
+        <Responsive minWidth={Responsive.onlyTablet.minWidth} className="appContainer">
           <Menu />
           <Container>
             {this.props.children}
           </Container>
         </Responsive>
-      </Fragment>
+    </div>
     );
   }
 

@@ -30,3 +30,22 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+#root {
+  height: 100% !important;
+}
+
+.app{
+  height: 100% !important;
+}
+
+.container, .test{
+  height: 100% !important;
+}
+
+.appContainer
+{
+  height: 95% !important;
+}
+
+

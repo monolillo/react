@@ -8,6 +8,7 @@ import Skill from './components/skill';
 import Station from './components/station';
 import Home from './components/home';
 import Blabla from './components/blabla';
+import PlayGround from './components/playground';
 import Login from './components/login';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
@@ -26,6 +27,7 @@ class RoutesApp extends Component {
             <Route path="/skill" component={Skill} />
             <Route path="/station" component={Station} />
             <Route path="/blabla" component={Blabla} />
+            <Route path="/playground" component={PlayGround} />
             <Route path="/login" component={Login} />
           </App>
         </Switch>

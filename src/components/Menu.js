@@ -49,7 +49,7 @@ class MenuApp extends Component {
               </Dropdown>
             </Menu.Menu>
             <Menu.Item name="livemap" to="/livemap" active={active === "livemap"} onClick={this.handleClickItem} />
-            <Menu.Item name="blabla" to="/blabla" active={active === "blabla"} onClick={this.handleClickItem} />
+            <Menu.Item name="playground" to="/playground" active={active === "playground"} onClick={this.handleClickItem} />
             <Menu.Menu position="right">
               <Menu.Item>
                 <Label as="a">
