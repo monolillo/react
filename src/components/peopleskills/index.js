@@ -3,10 +3,10 @@ import { connect } from 'react-redux'
 import { Input, Button, Form, Dropdown } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
-import { API_URL_SKILLS, API_URL_STATION } from '../../api/URLs';
+import { API_URL_SKILLS, API_URL_PEOPLE } from '../../api/URLs';
 import SearchComponent from '../search';
 
-class StationSkill extends Component {
+class PeopleSkill extends Component {
   constructor() {
     super();
     this.state = {
@@ -35,11 +35,11 @@ class StationSkill extends Component {
 
   componentWillReceiveProps(nextProps) {
     this.setState({
-      id: nextProps.station.id,
-      name: nextProps.station.name
+      id: nextProps.people.id,
+      name: nextProps.people.name
     });
     this.forceUpdate();
-    this.loadStationSkills(nextProps.station.id);
+    this.loadPeopleSkills(nextProps.people.id);
   }
 
   clearState = () => this.setState({
@@ -47,9 +47,9 @@ class StationSkill extends Component {
     loadingSkills: false, selectedSkills: [], savedSkills: []
   });
 
-  loadStationSkills(stationid) {
+  loadPeopleSkills(peopleid) {
     const paramsskill = {
-      url: API_URL_STATION + '/' + stationid + '/skills'
+      url: API_URL_PEOPLE + '/' + peopleid + '/skills'
     }
     Request.get(paramsskill)
       .then(response => {
@@ -97,7 +97,7 @@ class StationSkill extends Component {
     const jsonSelectedSkills = selectedSkills.map(value => ({ 'id': value }));
 
     Request.post({
-      url: API_URL_STATION + '/' + id + '/skills',
+      url: API_URL_PEOPLE + '/' + id + '/skills',
       data: jsonSelectedSkills
     })
       .then(response => {
@@ -125,7 +125,7 @@ class StationSkill extends Component {
     const { id } = this.state;
 
     Request.post({
-      url: API_URL_STATION + '/' + id + '/skills',
+      url: API_URL_PEOPLE + '/' + id + '/skills',
       data: []
     })
       .then(response => {
@@ -194,7 +194,7 @@ class StationSkill extends Component {
             </Form.Field>
             <Form>
               <Form.Field>
-                <label>Station ID</label>
+                <label>People ID</label>
                 <Input
                   disabled
                   icon="user"
@@ -205,7 +205,7 @@ class StationSkill extends Component {
                 />
               </Form.Field>
               <Form.Field>
-                <label>Station Name</label>
+                <label>People Name</label>
                 <Input
                   disabled
                   icon="user"
@@ -249,8 +249,8 @@ class StationSkill extends Component {
 
 const mapStateToProps = (globalState) => {
   return {
-    station: globalState.station
+    people: globalState.people
   }
 }
 
-export default connect(mapStateToProps)(StationSkill);
+export default connect(mapStateToProps)(PeopleSkill);
