@@ -1,11 +1,11 @@
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { PropTypes } from 'prop-types';
 import { Search, Grid, Header } from 'semantic-ui-react'
 import { withRouter } from 'react-router-dom';
 import { API_URL_PEOPLE, API_URL_SKILLS, API_URL_STATION } from '../../api/URLs';
 import Request from '../../api/request';
+import NotificationSystem from 'react-notification-system';
 
 import * as peopleActions from '../../actions/people';
 import * as skillActions from '../../actions/skill';
@@ -164,6 +164,7 @@ class SearchComponent extends Component {
           onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true })}
           {...this.props}
         />
+        <NotificationSystem ref="notificationSystem" />
       </div>
     )
   }

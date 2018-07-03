@@ -5,7 +5,7 @@ import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_STATION } from '../../api/URLs';
 import BrandLogo from '../../assets/eluxlogo.png';
-
+import NeorisList from '../neoriscomponents/neorislist';
 class PlayGround extends Component {
 
     constructor() {
@@ -36,16 +36,11 @@ class PlayGround extends Component {
                 }
             })
             .catch(error => {
-                this.refs.notificationSystem.addNotification({
-                    message: 'There was an unexpected situation loading information, try again later',
-                    level: 'warning'
-                });
-                console.log('Error', error);
+                this.setState({ active: false });
             })
     }
 
     componentWillMount() {
-        // this.resetComponent();
         this.loadSearchData();
     }
 
@@ -54,6 +49,7 @@ class PlayGround extends Component {
     render() {
         return (
             <div>
+               
                 <h1>Welcome to the PlayGround</h1>
                 <Dimmer active={this.state.active}>
                     <Loader />
@@ -112,6 +108,12 @@ class PlayGround extends Component {
                             </Card.Content>
                         </Card>
                     )}
+                </Segment>
+                <Segment>
+
+                </Segment>
+                <Segment>
+                    <NeorisList infolist={this.state.searchResults} />
                 </Segment>
             </div>
         );
