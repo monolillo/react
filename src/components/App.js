@@ -23,14 +23,14 @@ class App extends Component {
     <div className="appContainer">
         <Responsive {...Responsive.onlyMobile} className="appContainer">
           <MenuMobile>
-            <Container>
+            <Container style={{marginTop : 70}}>
               {this.props.children}
             </Container>
           </MenuMobile>
         </Responsive>
         <Responsive minWidth={Responsive.onlyTablet.minWidth} className="appContainer">
           <Menu />
-          <Container>
+          <Container style={{marginTop : 10}}>
             {this.props.children}
           </Container>
         </Responsive>

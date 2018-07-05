@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form } from 'semantic-ui-react';
+import { Input, Button, Form, Grid, Segment } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_PEOPLE } from '../../api/URLs';
+import SearchComponent from '../search';
 
 class People extends Component {
 
@@ -35,7 +36,7 @@ class People extends Component {
     if (this.formHasErrors('CREATE')) {
       return;
     }
-   
+
     const { badgeid, name, bvbeaconid } = this.state;
 
     const details = {
@@ -78,7 +79,7 @@ class People extends Component {
       name: name,
       bvbeaconid: bvbeaconid
     }
-    
+
     Request.put({
       url: API_URL_PEOPLE + '/' + id + '/update',
       data: details
@@ -140,6 +141,14 @@ class People extends Component {
     this.forceUpdate();
   }
 
+  componentWillMount() {
+    this.clearState();
+  }
+
+  componentWillUnmount() {
+    this.clearState();
+  }
+
   formHasErrors(originator) {
     let error = false;
     switch (originator) {
@@ -190,44 +199,50 @@ class People extends Component {
   }
 
   render() {
-    const { history,nombreVariable } = this.props; 
     console.log(this.state);
     return (
-      <Fragment>
-        <div className="ui two column right grid">
-
-        </div>
-        <div className="ui one column centered grid">
-          <div className="column" >
+      <div >
+        <Fragment>
+          {/* <Grid>
+          <Grid.Row columns={2}>
+            <Grid.Column></Grid.Column>
+            <Grid.Column textAlign='right'>
+              <SearchComponent />
+            </Grid.Column>
+          </Grid.Row>
+        </Grid> */}
+          <Segment raised>
             <Form>
-              <Form.Field>
-                <label>User id</label>
-                <Input
-                  disabled
-                  icon="user"
-                  placeholder="Id"
-                  required={true}
-                  onChange={e => this.changeValue('id', e.target.value)}
-                  value={this.state.id}
-                />
-              </Form.Field>
-              <Form.Field>
-                <label>User Badge ID</label>
-                <Input
-                  icon="user"
-                  placeholder="badgeid"
-                  required={true}
-                  error={this.state.badgeidError}
-                  onChange={e => this.changeValue('badgeid', e.target.value)}
-                  value={this.state.badgeid}
-                />
+              <Form.Group>
+                <Form.Field width={3}>
+                  <label>User id</label>
+                  <Input
+                    readOnly
+                    icon="id badge"
+                    placeholder="Id"
+                    required={true}
+                    onChange={e => this.changeValue('id', e.target.value)}
+                    value={this.state.id}
 
-              </Form.Field>
+                  />
+                </Form.Field>
+                <Form.Field width={13}>
+                  <label>Security Badge ID</label>
+                  <Input
+                    icon="tag"
+                    placeholder="Security Badge ID"
+                    required={true}
+                    error={this.state.badgeidError}
+                    onChange={e => this.changeValue('badgeid', e.target.value)}
+                    value={this.state.badgeid}
+                  />
+                </Form.Field>
+              </Form.Group>
               <Form.Field>
-                <label>User Name</label>
+                <label>Full Name</label>
                 <Input
                   icon="user"
-                  placeholder="name"
+                  placeholder="Full name"
                   required={true}
                   error={this.state.nameError}
                   onChange={e => this.changeValue('name', e.target.value)}
@@ -235,45 +250,75 @@ class People extends Component {
                 />
               </Form.Field>
               <Form.Field>
-                <label>User bvbeaconid</label>
+                <label>Bluvision Card ID</label>
                 <Input
-                  icon="user"
-                  placeholder="bvbeaconid"
+                  icon="id card"
+                  placeholder="Bluvision Card ID"
                   required={true}
                   error={this.state.bvbeaconidError}
                   onChange={e => this.changeValue('bvbeaconid', e.target.value)}
                   value={this.state.bvbeaconid}
                 />
               </Form.Field>
-              <Form.Field>
+              <Form.Field hidden>
                 <label>User iconurl</label>
                 <Input
-                  icon="user"
+                  icon="image"
                   placeholder="iconurl"
                   onChange={e => this.changeValue('iconurl', e.target.value)}
                   value={this.state.iconurl}
                 />
               </Form.Field>
-              <Form.Field>
+              <Form.Field hidden>
                 <label>User typeid</label>
                 <Input
-                  icon="user"
+                  icon="browser"
                   placeholder="typeid"
                   onChange={e => this.changeValue('typeid', e.target.value)}
                   value={this.state.typeid}
                 />
               </Form.Field>
-              <Form.Field>
-                {this.state.id === 0 && <Button fluid primary onClick={this.handleCreate}>Create</Button>}
-                {this.state.id !== 0 && <Button fluid primary onClick={this.handleUpdate}>Update</Button>}
-                {this.state.id !== 0 && <Button fluid secondary onClick={this.handleDelete}>Delete</Button>}
-                <Button fluid secondary onClick={this.clearState}>Clear</Button>
-              </Form.Field>
+              {this.state.id === 0 || this.state.id === undefined ? //New People
+                <Grid>
+                  <Grid.Row columns={2}>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column textAlign='right'>
+                      <Form.Group>
+                        <Form.Field width={8}>
+                          <Button fluid primary onClick={this.handleCreate}>Create</Button>
+                        </Form.Field>
+                        <Form.Field width={8}>
+                          <Button fluid color='grey' onClick={this.clearState}>Clear</Button>
+                        </Form.Field>
+                      </Form.Group>
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                : //Existent people
+                <Grid>
+                  <Grid.Row columns={2}>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column textAlign='right'>
+                      <Form.Group>
+                        <Form.Field width={6}>
+                          <Button fluid primary onClick={this.handleUpdate}>Update</Button>
+                        </Form.Field>
+                        <Form.Field width={6}>
+                          <Button fluid color='red' onClick={this.handleDelete}>Delete</Button>
+                        </Form.Field>
+                        <Form.Field width={6}>
+                          <Button fluid color='grey' onClick={this.clearState}>Clear</Button>
+                        </Form.Field>
+                      </Form.Group>
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+              }
             </Form>
-          </div>
-        </div>
-        <NotificationSystem ref="notificationSystem" />
-      </Fragment>
+          </Segment>
+          <NotificationSystem ref="notificationSystem" />
+        </Fragment >
+      </div>
     );
   }
 }
