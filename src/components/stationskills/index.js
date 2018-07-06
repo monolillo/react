@@ -62,6 +62,7 @@ class StationSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation loading information, try again later',
           level: 'warning'
+          ,position:'br'
         });
         console.log('Error', error);
       })
@@ -84,6 +85,7 @@ class StationSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation loading information, try again later',
           level: 'warning'
+          ,position:'br'
         });
         console.log('Error', error);
       })
@@ -105,6 +107,7 @@ class StationSkill extends Component {
           this.refs.notificationSystem.addNotification({
             message: 'Success',
             level: 'success'
+            ,position:'br'
           });
           this.clearState();
         }
@@ -113,6 +116,7 @@ class StationSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation, try again later',
           level: 'warning'
+          ,position:'br'
         });
         console.log('Error', error);
       })
@@ -133,6 +137,7 @@ class StationSkill extends Component {
           this.refs.notificationSystem.addNotification({
             message: 'Success',
             level: 'success'
+            ,position:'br'
           });
           this.clearState();
         }
@@ -141,6 +146,7 @@ class StationSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation, try again later',
           level: 'warning'
+          ,position:'br'
         });
         console.log('Error', error);
       })
