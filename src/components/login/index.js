@@ -45,6 +45,7 @@ class Login extends Component {
       this.refs.notificationSystem.addNotification({
         message: 'Invalid user, check your data and try again',
         level: 'warning'
+        ,position:'br'
       });
       console.log('Error', error);
     });

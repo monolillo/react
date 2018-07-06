@@ -41,6 +41,7 @@ class Skill extends Component {
                     this.refs.notificationSystem.addNotification({
                         message: 'Success',
                         level: 'success'
+                        ,position:'br'
                     });
                     this.clearState();
                 }
@@ -49,6 +50,7 @@ class Skill extends Component {
                 this.refs.notificationSystem.addNotification({
                     message: 'There was an unexpected situation, try again later',
                     level: 'warning'
+                    ,position:'br'
                 });
                 console.log('Error', error);
             })
@@ -73,6 +75,7 @@ class Skill extends Component {
                     this.refs.notificationSystem.addNotification({
                         message: 'Success',
                         level: 'success'
+                        ,position:'br'
                     });
                     this.clearState();
                 }
@@ -81,6 +84,7 @@ class Skill extends Component {
                 this.refs.notificationSystem.addNotification({
                     message: 'There was an unexpected situation, try again later',
                     level: 'warning'
+                    ,position:'br'
                 });
                 console.log('Error', error);
             })
@@ -100,6 +104,7 @@ class Skill extends Component {
                     this.refs.notificationSystem.addNotification({
                         message: 'Success',
                         level: 'success'
+                        ,position:'br'
                     });
                     this.clearState();
                 }
@@ -108,6 +113,7 @@ class Skill extends Component {
                 this.refs.notificationSystem.addNotification({
                     message: 'There was an unexpected situation, try again later',
                     level: 'warning'
+                    ,position:'br'
                 });
                 console.log('Error', error);
             })
