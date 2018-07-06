@@ -145,9 +145,10 @@ class SearchComponent extends Component {
   };
   render() {
     const { isLoading, value, results } = this.state
+    console.log(this.state);
     return (
       <div>
-        <Search on
+        <Search 
           loading={this.state.searchIsLoading}
           onFocus={this.handleClick}
           results={this.state.results}
@@ -163,6 +164,7 @@ class SearchComponent extends Component {
           onResultSelect={this.handleResultSelect}
           onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true })}
           {...this.props}
+          value= {this.state.searchValue}
         />
         <NotificationSystem ref="notificationSystem" />
       </div>

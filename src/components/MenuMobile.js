@@ -7,6 +7,7 @@ import * as actions from '../actions/menu';
 import Auth from '../config/session';
 import SearchComponent from './search';
 import BrandLogo from '../assets/eluxlogo.png';
+import BrandLogoFull from '../assets/eluxlogofull.png';
 
 
 class MenuAppMobile extends Component {
@@ -48,11 +49,12 @@ class MenuAppMobile extends Component {
                         animation="overlay"
                         icon="labeled"
                         inverted
-                        style={{backgroundColor: "#021d42"}}
+                        style={{ backgroundColor: "#021d42" }}
                         //items={leftItems}
                         vertical
                         visible={visible}
                     >
+                        <Image size="small" src={BrandLogoFull} />
                         <Menu.Item name="home" to="/" active={active === "home"} onClick={this.handleClickItem} />
                         <Menu.Item name="people" to="/people" active={active === "people"} onClick={this.handleClickItem} />
                         <Menu.Item name="skill" to="/skill" active={active === "skill"} onClick={this.handleClickItem} />
@@ -60,7 +62,7 @@ class MenuAppMobile extends Component {
                         <Menu.Item name="stationskill" to="/stationskill" active={active === "stationskill"} onClick={this.handleClickItem} />
                         <Menu.Item name="peopleskill" to="/peopleskill" active={active === "peopleskill"} onClick={this.handleClickItem} />
                         <Menu.Item name="livemap" to="/livemap" active={active === "livemap"} onClick={this.handleClickItem} />
-                        <Divider/>
+                        <Divider />
                         <Menu.Item name="users" to="/users" active={active === "users"} onClick={this.handleClickItem} />
                         <Menu.Item name="permissions" to="/permissions" active={active === "permissions"} onClick={this.handleClickItem} />
                         <Menu.Item name="roles" to="/roles" active={active === "roles"} onClick={this.handleClickItem} />
@@ -72,7 +74,7 @@ class MenuAppMobile extends Component {
                         style={{ minHeight: "100vh" }}
                     >
                         <Menu fixed="top" inverted
-                            style={{backgroundColor: "#021d42"}}>
+                            style={{ backgroundColor: "#021d42" }}>
                             <Menu.Item>
                                 <Image size="mini" src={BrandLogo} />
                             </Menu.Item>
@@ -80,7 +82,7 @@ class MenuAppMobile extends Component {
                                 <Icon name="sidebar" />
                             </Menu.Item>
                             <Menu.Menu position="right" style={{ marginTop: "10px", marginRight: "5px" }}>
-                                <SearchComponent actualcomponent={active} />
+                                {/* <SearchComponent actualcomponent={active} /> */}
                             </Menu.Menu>
                         </Menu>
                         {this.props.children}

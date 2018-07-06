@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form, Dropdown } from 'semantic-ui-react';
+import { Input, Button, Form, Dropdown, Grid, Segment,Header } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_SKILLS, API_URL_PEOPLE } from '../../api/URLs';
@@ -55,7 +55,7 @@ class PeopleSkill extends Component {
       .then(response => {
         if (response.status === 200) {
           const options = response.res.map(skill => skill.id);
-          this.setState({ selectedSkills: options,savedSkills:options })
+          this.setState({ selectedSkills: options, savedSkills: options })
         }
       })
       .catch(error => {
@@ -185,19 +185,28 @@ class PeopleSkill extends Component {
     })
 
     return (
-      <Fragment>
-        <div className="ui one column centered grid">
-          <div className="column" >
-            <Form.Field>
-              {/* <label>Search</label>
-              <SearchComponent /> */}
-            </Form.Field>
+      <div>
+        <Fragment>
+          <Grid>
+            <Grid.Row>
+              <Grid.Column textAlign='right'>
+                <SearchComponent />
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
+          <Segment raised>
+            <Header as='h2'>
+              <Header.Content>
+                People - Skills
+                <Header.Subheader>Manage skills for each people</Header.Subheader>
+              </Header.Content>
+            </Header>
             <Form>
               <Form.Field>
                 <label>People ID</label>
                 <Input
-                  disabled
-                  icon="user"
+                  readOnly
+                  icon="id badge"
                   placeholder="Id"
                   required={true}
                   onChange={e => this.changeValue('id', e.target.value)}
@@ -207,7 +216,7 @@ class PeopleSkill extends Component {
               <Form.Field>
                 <label>People Name</label>
                 <Input
-                  disabled
+                  readOnly
                   icon="user"
                   placeholder="name"
                   required={true}
@@ -219,6 +228,7 @@ class PeopleSkill extends Component {
               <Form.Field>
                 <label>Skill Selection</label>
                 <Dropdown
+                  disabled={this.state.id === 0 ? true : false}
                   multiple
                   selection
                   fluid
@@ -231,18 +241,47 @@ class PeopleSkill extends Component {
                   value={selectedSkills}
                 />
               </Form.Field>
-              <Form.Field>
-                {savedSkills.length === 0 && <Button fluid primary onClick={this.handleCreate}>Create</Button>}
-                {savedSkills.length !== 0 && <Button fluid secondary onClick={this.handleCreate}>Update</Button>}
-                {savedSkills.length !== 0 && <Button fluid danger onClick={this.handleDelete}>Delete</Button>}
-                <Button fluid secondary onClick={this.clearState}>Clear</Button>
-              </Form.Field>
+              {this.state.id === 0 || this.state.id === undefined ? //New registry
+                <Grid>
+                  <Grid.Row columns={2}>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column textAlign='right'>
+                      <Form.Group>
+                        <Form.Field width={8}>
+                          <Button fluid primary onClick={this.handleCreate}>Create</Button>
+                        </Form.Field>
+                        <Form.Field width={8}>
+                          <Button fluid color='grey' onClick={this.clearState}>Clear</Button>
+                        </Form.Field>
+                      </Form.Group>
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                : //Existent registry
+                <Grid>
+                  <Grid.Row columns={2}>
+                    <Grid.Column></Grid.Column>
+                    <Grid.Column textAlign='right'>
+                      <Form.Group>
+                        <Form.Field width={6}>
+                          <Button fluid primary onClick={this.handleCreate}>Update</Button>
+                        </Form.Field>
+                        <Form.Field width={6}>
+                          <Button fluid color='red' onClick={this.handleDelete}>Delete</Button>
+                        </Form.Field>
+                        <Form.Field width={6}>
+                          <Button fluid color='grey' onClick={this.clearState}>Clear</Button>
+                        </Form.Field>
+                      </Form.Group>
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+              }
             </Form>
-          </div>
-        </div>
-
-        <NotificationSystem ref="notificationSystem" />
-      </Fragment>
+          </Segment>
+          <NotificationSystem ref="notificationSystem" />
+        </Fragment>
+      </div>
     );
   }
 }

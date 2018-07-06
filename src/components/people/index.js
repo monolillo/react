@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form, Grid, Segment } from 'semantic-ui-react';
+import { Input, Button, Form, Grid, Segment, Header, Confirm } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_PEOPLE } from '../../api/URLs';
@@ -24,13 +24,15 @@ class People extends Component {
       bvbeaconidError: false,
       formError: false,
       errorMessage: 'Please complete all required fields.',
+      confirmOpen: false,
+      nextProps: []
     };
   }
   changeValue(field, value) {
     this.setState({ [field]: value });
   }
 
-  clearState = () => this.setState({ id: 0, badgeid: '', name: '', bvbeaconid: '', iconurl: '', typeid: '' });
+  clearState = () => this.setState({ id: 0, badgeid: '', name: '', bvbeaconid: '', iconurl: '', typeid: '', nextProps: [] });
 
   handleCreate = async () => {
     if (this.formHasErrors('CREATE')) {
@@ -130,6 +132,15 @@ class People extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    // const { id } = this.state
+
+    // if (id === 0 || id === undefined) {
+
+    // }else
+    // {
+    //   this.setState({nextProps:nextProps});
+    //   this.openModal();
+    // }
     this.setState({
       id: nextProps.people.id,
       badgeid: nextProps.people.badgeid,
@@ -198,20 +209,41 @@ class People extends Component {
     return error;
   }
 
+  openModal = () => this.setState({ confirmOpen: true })
+
+
+  handleConfirm(nextProps) {
+    this.setState({
+      id: nextProps.people.id,
+      badgeid: nextProps.people.badgeid,
+      name: nextProps.people.name,
+      bvbeaconid: nextProps.people.bvbeaconid,
+      iconurl: nextProps.people.iconurl,
+      typeid: nextProps.people.typeid
+    });
+    this.forceUpdate();
+  }
+  handleCancel() {
+    this.setState({ confirmOpen: false });
+  }
+
   render() {
-    console.log(this.state);
     return (
       <div >
         <Fragment>
-          {/* <Grid>
-          <Grid.Row columns={2}>
-            <Grid.Column></Grid.Column>
-            <Grid.Column textAlign='right'>
-              <SearchComponent />
-            </Grid.Column>
-          </Grid.Row>
-        </Grid> */}
+          <Grid>
+            <Grid.Row>
+              <Grid.Column textAlign='right'>
+                <SearchComponent />
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
           <Segment raised>
+            <Header as='h2'>
+              <Header.Content>
+                People
+              </Header.Content>
+            </Header>
             <Form>
               <Form.Group>
                 <Form.Field width={3}>
@@ -317,6 +349,7 @@ class People extends Component {
             </Form>
           </Segment>
           <NotificationSystem ref="notificationSystem" />
+          {/* <Confirm open={this.state.confirmOpen} onCancel={this.handleCancel} onConfirm={this.handleConfirm} /> */}
         </Fragment >
       </div>
     );
