@@ -1,3 +1,7 @@
+body{
+  background-color: #E8E8E8 !important;
+}
+
 .App {
   text-align: center;
 }
@@ -59,4 +63,13 @@
   height: 95% !important;
 }
 
+.results{
+  right:0 !important;
+  left:auto !important;
+}
+
+.search .results {
+  overflow-y: auto;
+  max-height: 300px;
+  }
 

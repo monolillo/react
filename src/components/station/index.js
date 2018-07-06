@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form, Grid, Segment } from 'semantic-ui-react';
+import { Input, Button, Form, Grid, Segment,Header } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_STATION } from '../../api/URLs';
+import SearchComponent from '../search';
 
 class Station extends Component {
     constructor() {
@@ -175,8 +176,20 @@ class Station extends Component {
     render() {
         return (
             <div >
+                <Grid>
+                    <Grid.Row>
+                        <Grid.Column textAlign='right'>
+                            <SearchComponent />
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
                 <Fragment>
                     <Segment raised>
+                        <Header as='h2'>
+                            <Header.Content>
+                                Stations
+                            </Header.Content>
+                        </Header>
                         <Form>
                             <Form.Group>
                                 <Form.Field width={3}>

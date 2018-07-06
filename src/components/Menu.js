@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import * as actions from '../actions/menu';
 import Auth from '../config/session';
 import SearchComponent from './search';
-import BrandLogo from '../assets/eluxlogo.png';
+import BrandLogo from '../assets/eluxlogofull.png';
 
 
 class MenuApp extends Component {
@@ -34,7 +34,7 @@ class MenuApp extends Component {
         <div>
           <Menu borderless inverted color="blue" style={{backgroundColor: "#021d42"}}>
             <Menu.Item>
-              <Image size="mini" src={BrandLogo} />
+              <Image size="small" src={BrandLogo} />
             </Menu.Item>
             <Menu.Item name="home" to="/" active={active === "home"} onClick={this.handleClickItem} />
             <Menu.Menu>
@@ -57,7 +57,7 @@ class MenuApp extends Component {
                   </Label>
               </Menu.Item>
               <Menu.Item>
-                <SearchComponent actualcomponent={active} />
+                {/* <SearchComponent actualcomponent={active} /> */}
               </Menu.Item>
               <Dropdown item icon='configure'>
                 <Dropdown.Menu>
