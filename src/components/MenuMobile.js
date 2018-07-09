@@ -1,11 +1,9 @@
-import _ from "lodash";
 import React, { Component } from 'react';
-import { Menu, Divider, Icon, Image, Sidebar, Responsive, Dropdown, Label, Segment, Header } from 'semantic-ui-react';
+import { Menu, Divider, Icon, Image, Sidebar} from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as actions from '../actions/menu';
 import Auth from '../config/session';
-import SearchComponent from './search';
 import BrandLogo from '../assets/eluxlogo.png';
 import BrandLogoFull from '../assets/eluxlogofull.png';
 
@@ -26,7 +24,7 @@ class MenuAppMobile extends Component {
 
     handleClickSingout = (e) => {
         Auth.logout();
-        const { changeActiveItem, history } = this.props;
+        const { history } = this.props;
         history.push('/login');
     };
 

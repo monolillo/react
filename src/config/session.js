@@ -14,8 +14,10 @@ const Auth = {
   }
 }
 
+/*
 const validateJWT = () => {
   return false
 }
+*/
 
 export default Auth;

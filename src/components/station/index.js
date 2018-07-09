@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form, Grid, Segment,Header } from 'semantic-ui-react';
+import { Input, Button, Form, Grid, Segment, Header, Confirm } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_STATION } from '../../api/URLs';
@@ -17,7 +17,8 @@ class Station extends Component {
             nameError: false,
             bvblufiidError: false,
             formError: false,
-            errorMessage: 'Please complete all required fields.'
+            errorMessage: 'Please complete all required fields.',
+            nextProps: []
         };
     }
     changeValue(field, value) {
@@ -45,7 +46,7 @@ class Station extends Component {
                     this.refs.notificationSystem.addNotification({
                         message: 'Success',
                         level: 'success'
-                        ,position:'br'
+                        , position: 'br'
                     });
                     this.clearState();
                 }
@@ -54,7 +55,7 @@ class Station extends Component {
                 this.refs.notificationSystem.addNotification({
                     message: 'There was an unexpected situation, try again later',
                     level: 'warning'
-                    ,position:'br'
+                    , position: 'br'
                 });
                 console.log('Error', error);
             })
@@ -80,7 +81,7 @@ class Station extends Component {
                     this.refs.notificationSystem.addNotification({
                         message: 'Success',
                         level: 'success'
-                        ,position:'br'
+                        , position: 'br'
                     });
                     this.clearState();
                 }
@@ -89,7 +90,7 @@ class Station extends Component {
                 this.refs.notificationSystem.addNotification({
                     message: 'There was an unexpected situation, try again later',
                     level: 'warning'
-                    ,position:'br'
+                    , position: 'br'
                 });
                 console.log('Error', error);
             })
@@ -109,7 +110,7 @@ class Station extends Component {
                     this.refs.notificationSystem.addNotification({
                         message: 'Success',
                         level: 'success'
-                        ,position:'br'
+                        , position: 'br'
                     });
                     this.clearState();
                 }
@@ -118,19 +119,24 @@ class Station extends Component {
                 this.refs.notificationSystem.addNotification({
                     message: 'There was an unexpected situation, try again later',
                     level: 'warning'
-                    ,position:'br'
+                    , position: 'br'
                 });
                 console.log('Error', error);
             })
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({
-            id: nextProps.station.id,
-            name: nextProps.station.name,
-            bvblufiid: nextProps.station.bvblufiid
-        });
-        this.forceUpdate();
+        const { id } = this.state
+        if (id === 0 || id === undefined) {
+            this.setState({
+                id: nextProps.station.id,
+                name: nextProps.station.name,
+                bvblufiid: nextProps.station.bvblufiid,
+                confirmOpen: false
+            });
+        } else {
+            this.setState({ confirmOpen: true, nextProps: nextProps });
+        }
     }
 
     componentWillMount() {
@@ -177,6 +183,16 @@ class Station extends Component {
                 break;
         }
         return error;
+    }
+
+    handleCancel = () => this.setState({ confirmOpen: false })
+    handleConfirm = async () => {
+        this.setState({
+            id: this.state.nextProps.station.id,
+            name: this.state.nextProps.station.name,
+            bvblufiid: this.state.nextProps.station.bvblufiid,
+            confirmOpen: false
+        });
     }
 
     render() {
@@ -272,8 +288,9 @@ class Station extends Component {
                             </Form.Field>
                         </Form>
                     </Segment>
-                    <NotificationSystem ref="notificationSystem" />
                 </Fragment>
+                <Confirm open={this.state.confirmOpen} onCancel={this.handleCancel} onConfirm={this.handleConfirm} content="All unsaved data will be lost, do you want to proceed?" />
+                <NotificationSystem ref="notificationSystem" />
             </div>
         );
     }

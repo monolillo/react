@@ -4,7 +4,6 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as actions from '../actions/menu';
 import Auth from '../config/session';
-import SearchComponent from './search';
 import BrandLogo from '../assets/eluxlogofull.png';
 
 
@@ -22,7 +21,7 @@ class MenuApp extends Component {
 
   handleClickSingout = (e) => {
     Auth.logout();
-    const { changeActiveItem, history } = this.props;
+    const { history } = this.props;
     history.push('/login');
   };
 

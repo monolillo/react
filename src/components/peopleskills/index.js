@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form, Dropdown, Grid, Segment,Header } from 'semantic-ui-react';
+import { Input, Button, Form, Dropdown, Grid, Segment, Header, Confirm } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_SKILLS, API_URL_PEOPLE } from '../../api/URLs';
@@ -20,10 +20,10 @@ class PeopleSkill extends Component {
       searchQuery: '',
       loadingSkills: true,
       selectedSkills: [],
-      savedSkills: []
+      savedSkills: [],
+      nextProps: []
     };
   }
-
 
   changeValue(field, value) {
     this.setState({ [field]: value });
@@ -34,12 +34,16 @@ class PeopleSkill extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({
-      id: nextProps.people.id,
-      name: nextProps.people.name
-    });
-    this.forceUpdate();
-    this.loadPeopleSkills(nextProps.people.id);
+    const { id } = this.state
+    if (id === 0 || id === undefined) {
+      this.setState({
+        id: nextProps.people.id,
+        name: nextProps.people.name
+      });
+      this.loadPeopleSkills(nextProps.people.id);
+    } else {
+      this.setState({ confirmOpen: true, nextProps: nextProps });
+    }
   }
 
   clearState = () => this.setState({
@@ -62,7 +66,7 @@ class PeopleSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation loading information, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
@@ -85,7 +89,7 @@ class PeopleSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation loading information, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
@@ -107,7 +111,7 @@ class PeopleSkill extends Component {
           this.refs.notificationSystem.addNotification({
             message: 'Success',
             level: 'success'
-            ,position:'br'
+            , position: 'br'
           });
           this.clearState();
         }
@@ -116,7 +120,7 @@ class PeopleSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
@@ -137,7 +141,7 @@ class PeopleSkill extends Component {
           this.refs.notificationSystem.addNotification({
             message: 'Success',
             level: 'success'
-            ,position:'br'
+            , position: 'br'
           });
           this.clearState();
         }
@@ -146,7 +150,7 @@ class PeopleSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
@@ -165,6 +169,7 @@ class PeopleSkill extends Component {
           this.setState({ nameError: false })
           error = false
         }
+        break;
       case 'DELETE':
         if (this.state.ID === 0) {
           this.setState({ idError: true })
@@ -181,9 +186,18 @@ class PeopleSkill extends Component {
     return error;
   }
 
+  handleCancel = () => this.setState({ confirmOpen: false })
+  handleConfirm = async () => {
+    this.setState({
+      id: this.state.nextProps.people.id,
+      name: this.state.nextProps.people.name,
+      confirmOpen: false
+    });
+    this.loadPeopleSkills(this.state.nextProps.people.id);
+  }
 
   render() {
-    const { skills, loadingSkills, selectedSkills, savedSkills } = this.state;
+    const { skills, loadingSkills, selectedSkills } = this.state;
     const renderLabel = label => ({
       color: 'blue',
       content: `${label.text}`,
@@ -254,7 +268,7 @@ class PeopleSkill extends Component {
                     <Grid.Column textAlign='right'>
                       <Form.Group>
                         <Form.Field width={8}>
-                          <Button fluid primary onClick={this.handleCreate}>Create</Button>
+                          <Button fluid primary onClick={this.handleCreate} icon="user">Create</Button>
                         </Form.Field>
                         <Form.Field width={8}>
                           <Button fluid color='grey' onClick={this.clearState}>Clear</Button>
@@ -285,8 +299,9 @@ class PeopleSkill extends Component {
               }
             </Form>
           </Segment>
-          <NotificationSystem ref="notificationSystem" />
         </Fragment>
+        <Confirm open={this.state.confirmOpen} onCancel={this.handleCancel} onConfirm={this.handleConfirm} content="All unsaved data will be lost, do you want to proceed?" />
+        <NotificationSystem ref="notificationSystem" />
       </div>
     );
   }

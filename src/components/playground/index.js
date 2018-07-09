@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux'
-import { Table, Loader, Segment, Dimmer, Label, Menu, Icon, Card, Image, Divider, Modal, Button, Header } from 'semantic-ui-react';
+import { Table, Loader, Segment, Dimmer, Icon, Card, Image, Divider, Modal, Button, Header } from 'semantic-ui-react';
 import Request from '../../api/request';
-import NotificationSystem from 'react-notification-system';
 import { API_URL_STATION } from '../../api/URLs';
 import BrandLogo from '../../assets/eluxlogo.png';
 import NeorisList from '../neoriscomponents/neorislist';

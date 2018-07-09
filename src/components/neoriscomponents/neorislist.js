@@ -3,10 +3,7 @@ import NeorisPeopleCard from './neorispeoplecard'
 
 class NeorisList extends Component {
 
-    constructor(props) {
-        super(props)
-    }
-    render() {
+       render() {
         const { infolist } = this.props;
         return (
             <div>
