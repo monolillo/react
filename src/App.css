@@ -73,3 +73,6 @@ body{
   max-height: 300px;
   }
 
+  .ui.page.modals.transition.visible {
+    display: flex !important;
+}

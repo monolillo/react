@@ -24,7 +24,6 @@ class People extends Component {
       bvbeaconidError: false,
       formError: false,
       errorMessage: 'Please complete all required fields.',
-      confirmOpen: false,
       nextProps: []
     };
   }
@@ -56,7 +55,7 @@ class People extends Component {
           this.refs.notificationSystem.addNotification({
             message: 'Success',
             level: 'success'
-            ,position:'br'
+            , position: 'br'
           });
           this.clearState();
         }
@@ -65,7 +64,7 @@ class People extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
@@ -93,7 +92,7 @@ class People extends Component {
           this.refs.notificationSystem.addNotification({
             message: 'Success',
             level: 'success'
-            ,position:'br'
+            , position: 'br'
           });
           this.clearState();
         }
@@ -102,7 +101,7 @@ class People extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
@@ -122,7 +121,7 @@ class People extends Component {
           this.refs.notificationSystem.addNotification({
             message: 'Success',
             level: 'success'
-            ,position:'br'
+            , position: 'br'
           });
           this.clearState();
         }
@@ -131,31 +130,28 @@ class People extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
   }
 
   componentWillReceiveProps(nextProps) {
-    // const { id } = this.state
+    const { id } = this.state
+    if (id === 0 || id === undefined) {
+      this.setState({
+        id: nextProps.people.id,
+        badgeid: nextProps.people.badgeid,
+        name: nextProps.people.name,
+        bvbeaconid: nextProps.people.bvbeaconid,
+        iconurl: nextProps.people.iconurl,
+        typeid: nextProps.people.typeid
+      });
+      this.setState({ confirmOpen: false });
+    } else {
+      this.setState({ confirmOpen: true, nextProps: nextProps });
+    }
 
-    // if (id === 0 || id === undefined) {
-
-    // }else
-    // {
-    //   this.setState({nextProps:nextProps});
-    //   this.openModal();
-    // }
-    this.setState({
-      id: nextProps.people.id,
-      badgeid: nextProps.people.badgeid,
-      name: nextProps.people.name,
-      bvbeaconid: nextProps.people.bvbeaconid,
-      iconurl: nextProps.people.iconurl,
-      typeid: nextProps.people.typeid
-    });
-    this.forceUpdate();
   }
 
   componentWillMount() {
@@ -215,22 +211,17 @@ class People extends Component {
     return error;
   }
 
-  openModal = () => this.setState({ confirmOpen: true })
-
-
-  handleConfirm(nextProps) {
+  handleCancel = () => this.setState({ confirmOpen: false })
+  handleConfirm = async () => {
     this.setState({
-      id: nextProps.people.id,
-      badgeid: nextProps.people.badgeid,
-      name: nextProps.people.name,
-      bvbeaconid: nextProps.people.bvbeaconid,
-      iconurl: nextProps.people.iconurl,
-      typeid: nextProps.people.typeid
+      id: this.state.nextProps.people.id,
+      badgeid: this.state.nextProps.people.badgeid,
+      name: this.state.nextProps.people.name,
+      bvbeaconid: this.state.nextProps.people.bvbeaconid,
+      iconurl: this.state.nextProps.people.iconurl,
+      typeid: this.state.nextProps.people.typeid,
+      confirmOpen: false
     });
-    this.forceUpdate();
-  }
-  handleCancel() {
-    this.setState({ confirmOpen: false });
   }
 
   render() {
@@ -354,9 +345,9 @@ class People extends Component {
               }
             </Form>
           </Segment>
-          <NotificationSystem ref="notificationSystem" />
-          {/* <Confirm open={this.state.confirmOpen} onCancel={this.handleCancel} onConfirm={this.handleConfirm} /> */}
         </Fragment >
+        <Confirm open={this.state.confirmOpen} onCancel={this.handleCancel} onConfirm={this.handleConfirm} content="All unsaved data will be lost, do you want to proceed?" />
+        <NotificationSystem ref="notificationSystem" />
       </div>
     );
   }

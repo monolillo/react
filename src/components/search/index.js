@@ -1,7 +1,8 @@
-import _ from 'lodash'
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Search, Grid, Header } from 'semantic-ui-react'
+import _ from 'lodash';
+import propTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Search} from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
 import { API_URL_PEOPLE, API_URL_SKILLS, API_URL_STATION } from '../../api/URLs';
 import Request from '../../api/request';
@@ -22,13 +23,13 @@ class SearchComponent extends Component {
       searchIsLoading: false,
       searchResults: [],
       searchClickResult: [],
-      results: []
+      results: [{}]
     };
   }
 
 
   componentWillMount() {
-    this.resetComponent();
+    //this.resetComponent();
   }
 
   resetComponent = () => this.setState({ searchIsLoading: false, searchResults: [], searchValue: '' })
@@ -127,14 +128,14 @@ class SearchComponent extends Component {
     switch (history.location.pathname) {
       case '/people':
       case '/peopleskill':
-        this.props.setPeopleFromSearch(result)
+        this.props.setpeoplefromsearch(result)
         break;
       case '/skill':
-        this.props.setSkillFromSearch(result)
+        this.props.setskillfromsearch(result)
         break;
       case '/station':
       case '/stationskill':
-        this.props.setStationFromSearch(result)
+        this.props.setstationfromsearch(result)
         break;
       default:
         break;
@@ -147,8 +148,6 @@ class SearchComponent extends Component {
     this.loadSearchData(history.location.pathname);
   };
   render() {
-    const { isLoading, value, results } = this.state
-    console.log(this.state);
     return (
       <div>
         <Search 
@@ -156,18 +155,17 @@ class SearchComponent extends Component {
           onFocus={this.handleClick}
           results={this.state.results}
           resultRenderer={
-            ({ id, name, badgeid, bvblufiid }) => [
-              <div key='id' className='content'>
-                {badgeid && <div className='price'>{id}</div>}
+            ({ id, name}) => [
+              <div key={id} className='content'>
                 {name && <div className='title'>{name}</div>}
-              </div>,
+              </div>
             ]
           }
-          title=''
+          title='Search'
           onResultSelect={this.handleResultSelect}
           onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true })}
           {...this.props}
-          value= {this.state.searchValue}
+          //value= {this.state.searchValue}
         />
         <NotificationSystem ref="notificationSystem" />
       </div>
@@ -177,9 +175,9 @@ class SearchComponent extends Component {
 
 function mapDispatchToProps(dispatch) {
   return {
-    setPeopleFromSearch: (people) => dispatch({ type: 'SET_PEOPLE_FROM_SEARCH', payload: people }),
-    setSkillFromSearch: (skill) => dispatch({ type: 'SET_SKILL_FROM_SEARCH', payload: skill }),
-    setStationFromSearch: (station) => dispatch({ type: 'SET_STATION_FROM_SEARCH', payload: station }),
+    setpeoplefromsearch: (people) => dispatch({ type: 'SET_PEOPLE_FROM_SEARCH', payload: people }),
+    setskillfromsearch: (skill) => dispatch({ type: 'SET_SKILL_FROM_SEARCH', payload: skill }),
+    setstationfromsearch: (station) => dispatch({ type: 'SET_STATION_FROM_SEARCH', payload: station }),
   }
 }
 
@@ -191,6 +189,10 @@ function mapStateToProps(state) {
   }
 }
 
+SearchComponent.propTypes={
+  setpeoplefromsearch:propTypes.any,
+  setskillfromsearch:propTypes.any,
+  setskillfromsearch:propTypes.any
+}
 
-//export default connect() withRouter(SearchComponent);
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(SearchComponent));

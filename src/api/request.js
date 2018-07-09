@@ -13,7 +13,7 @@ const headersLoginAzure = {
 };
 
 const messageError401 = 'You are not authorized to this action or your session has expired';
-const messageErrorDefault = 'There was an unexpected situation , try again later';
+//const messageErrorDefault = 'There was an unexpected situation , try again later';
 
 const Request = {
   async get(params) {

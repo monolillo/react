@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form, Grid, Segment,Header } from 'semantic-ui-react';
+import { Input, Button, Form, Grid, Segment, Header, Confirm } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_SKILLS } from '../../api/URLs';
@@ -15,6 +15,7 @@ class Skill extends Component {
             nameError: false,
             formError: false,
             errorMessage: 'Please complete all required fields.',
+            nextProps: []
         };
     }
     changeValue(field, value) {
@@ -41,7 +42,7 @@ class Skill extends Component {
                     this.refs.notificationSystem.addNotification({
                         message: 'Success',
                         level: 'success'
-                        ,position:'br'
+                        , position: 'br'
                     });
                     this.clearState();
                 }
@@ -50,7 +51,7 @@ class Skill extends Component {
                 this.refs.notificationSystem.addNotification({
                     message: 'There was an unexpected situation, try again later',
                     level: 'warning'
-                    ,position:'br'
+                    , position: 'br'
                 });
                 console.log('Error', error);
             })
@@ -75,7 +76,7 @@ class Skill extends Component {
                     this.refs.notificationSystem.addNotification({
                         message: 'Success',
                         level: 'success'
-                        ,position:'br'
+                        , position: 'br'
                     });
                     this.clearState();
                 }
@@ -84,7 +85,7 @@ class Skill extends Component {
                 this.refs.notificationSystem.addNotification({
                     message: 'There was an unexpected situation, try again later',
                     level: 'warning'
-                    ,position:'br'
+                    , position: 'br'
                 });
                 console.log('Error', error);
             })
@@ -104,7 +105,7 @@ class Skill extends Component {
                     this.refs.notificationSystem.addNotification({
                         message: 'Success',
                         level: 'success'
-                        ,position:'br'
+                        , position: 'br'
                     });
                     this.clearState();
                 }
@@ -113,18 +114,23 @@ class Skill extends Component {
                 this.refs.notificationSystem.addNotification({
                     message: 'There was an unexpected situation, try again later',
                     level: 'warning'
-                    ,position:'br'
+                    , position: 'br'
                 });
                 console.log('Error', error);
             })
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({
-            id: nextProps.skill.id,
-            name: nextProps.skill.name
-        });
-        this.forceUpdate();
+        const { id } = this.state
+        if (id === 0 || id === undefined) {
+            this.setState({
+                id: nextProps.skill.id,
+                name: nextProps.skill.name,
+                confirmOpen: false
+            });
+        } else {
+            this.setState({ confirmOpen: true, nextProps: nextProps });
+        }
     }
 
     componentWillMount() {
@@ -164,6 +170,15 @@ class Skill extends Component {
                 break;
         }
         return error;
+    }
+
+    handleCancel = () => this.setState({ confirmOpen: false })
+    handleConfirm = async () => {
+        this.setState({
+            id: this.state.nextProps.skill.id,
+            name: this.state.nextProps.skill.name,
+            confirmOpen: false
+        });
     }
 
     render() {
@@ -246,14 +261,16 @@ class Skill extends Component {
                             }
                         </Form>
                     </Segment>
-                    <NotificationSystem ref="notificationSystem" />
                 </Fragment>
+                <Confirm open={this.state.confirmOpen} onCancel={this.handleCancel} onConfirm={this.handleConfirm} content="All unsaved data will be lost, do you want to proceed?" />
+                <NotificationSystem ref="notificationSystem" />
             </div>
         );
     }
 }
 
 const mapStateToProps = (globalState) => {
+    console.log(this.props);
     return {
         skill: globalState.skill
     }

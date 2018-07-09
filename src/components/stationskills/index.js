@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
-import { Input, Button, Form, Dropdown, Grid, Segment,Header } from 'semantic-ui-react';
+import { Input, Button, Form, Dropdown, Grid, Segment, Header, Confirm } from 'semantic-ui-react';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 import { API_URL_SKILLS, API_URL_STATION } from '../../api/URLs';
@@ -20,7 +20,8 @@ class StationSkill extends Component {
       searchQuery: '',
       loadingSkills: true,
       selectedSkills: [],
-      savedSkills: []
+      savedSkills: [],
+      nextProps: []
     };
   }
 
@@ -34,12 +35,17 @@ class StationSkill extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({
-      id: nextProps.station.id,
-      name: nextProps.station.name
-    });
-    this.forceUpdate();
-    this.loadStationSkills(nextProps.station.id);
+    const { id } = this.state
+
+    if (id === 0 || id === undefined) {
+      this.setState({
+        id: nextProps.station.id,
+        name: nextProps.station.name
+      });
+      this.loadStationSkills(nextProps.station.id);
+    } else {
+      this.setState({ confirmOpen: true, nextProps: nextProps });
+    }
   }
 
   clearState = () => this.setState({
@@ -62,7 +68,7 @@ class StationSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation loading information, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
@@ -85,7 +91,7 @@ class StationSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation loading information, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
@@ -107,7 +113,7 @@ class StationSkill extends Component {
           this.refs.notificationSystem.addNotification({
             message: 'Success',
             level: 'success'
-            ,position:'br'
+            , position: 'br'
           });
           this.clearState();
         }
@@ -116,7 +122,7 @@ class StationSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
@@ -137,7 +143,7 @@ class StationSkill extends Component {
           this.refs.notificationSystem.addNotification({
             message: 'Success',
             level: 'success'
-            ,position:'br'
+            , position: 'br'
           });
           this.clearState();
         }
@@ -146,7 +152,7 @@ class StationSkill extends Component {
         this.refs.notificationSystem.addNotification({
           message: 'There was an unexpected situation, try again later',
           level: 'warning'
-          ,position:'br'
+          , position: 'br'
         });
         console.log('Error', error);
       })
@@ -165,6 +171,7 @@ class StationSkill extends Component {
           this.setState({ nameError: false })
           error = false
         }
+        break;
       case 'DELETE':
         if (this.state.ID === 0) {
           this.setState({ idError: true })
@@ -181,9 +188,19 @@ class StationSkill extends Component {
     return error;
   }
 
+  handleCancel = () => this.setState({ confirmOpen: false })
+  handleConfirm = async () => {
+    this.setState({
+      id: this.state.nextProps.station.id,
+      name: this.state.nextProps.station.name,
+      bvblufiid: this.state.nextProps.station.bvblufiid,
+      confirmOpen: false
+    });
+    this.loadStationSkills(this.state.nextProps.station.id);
+  }
 
   render() {
-    const { skills, loadingSkills, selectedSkills, savedSkills } = this.state;
+    const { skills, loadingSkills, selectedSkills } = this.state;
     const renderLabel = label => ({
       color: 'blue',
       content: `${label.text}`,
@@ -285,8 +302,9 @@ class StationSkill extends Component {
               }
             </Form>
           </Segment>
-          <NotificationSystem ref="notificationSystem" />
         </Fragment>
+        <Confirm open={this.state.confirmOpen} onCancel={this.handleCancel} onConfirm={this.handleConfirm} content="All unsaved data will be lost, do you want to proceed?" />
+        <NotificationSystem ref="notificationSystem" />
       </div>
     );
   }
