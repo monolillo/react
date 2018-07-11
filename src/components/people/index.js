@@ -155,10 +155,12 @@ class People extends Component {
   }
 
   componentWillMount() {
+    console.log('componentWillMount');
     this.clearState();
   }
 
   componentWillUnmount() {
+    console.log('componentWillMount');
     this.clearState();
   }
 

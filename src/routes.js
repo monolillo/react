@@ -10,6 +10,7 @@ import Home from './components/home';
 import Blabla from './components/blabla';
 import PlayGround from './components/playground';
 import Login from './components/login';
+import Groups from './components/groups'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 class RoutesApp extends Component {
@@ -29,6 +30,7 @@ class RoutesApp extends Component {
             <Route path="/blabla" component={Blabla} />
             <Route path="/playground" component={PlayGround} />
             <Route path="/login" component={Login} />
+            <Route path="/groups" component={Groups} />
           </App>
         </Switch>
       </Router>

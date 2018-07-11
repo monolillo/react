@@ -62,7 +62,7 @@ class MenuApp extends Component {
                 <Dropdown.Menu>
                   <Dropdown.Item name="users" to="/users" onClick={this.handleClickItem}>Users</Dropdown.Item>
                   <Dropdown.Item name="permissions" to="/permissions" onClick={this.handleClickItem}>Administration</Dropdown.Item>
-                  <Dropdown.Item name="roles" to="/roles" onClick={this.handleClickItem}>Roles</Dropdown.Item>
+                  <Dropdown.Item name="groups" to="/groups" onClick={this.handleClickItem}>Groups</Dropdown.Item>
                   <Dropdown.Item name="singout" to="/singout" onClick={this.handleClickSingout}>Singout</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>

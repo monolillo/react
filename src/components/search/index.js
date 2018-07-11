@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Search} from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
-import { API_URL_PEOPLE, API_URL_SKILLS, API_URL_STATION } from '../../api/URLs';
+import { API_URL_PEOPLE, API_URL_SKILLS, API_URL_STATION, API_URL_GROUPS } from '../../api/URLs';
 import Request from '../../api/request';
 import NotificationSystem from 'react-notification-system';
 
@@ -99,6 +99,25 @@ class SearchComponent extends Component {
             console.log('Error', error);
           })
         break
+      case '/groups':
+        const paramsgroups = {
+          url: API_URL_GROUPS
+        }
+        Request.get(paramsgroups)
+          .then(response => {
+            if(response.status === 200){
+              this.setState({ searchResults: response.res, searchIsLoading: false, results: response.res });
+            }
+          })
+          .catch(error => {
+            this.refs.notificationSystem.addNotification({
+              message: 'There was an unexpected situation loading information, try again later',
+              level: 'warning'
+              ,position:'br'
+            });
+            console.log('Error', error);
+          })
+        break
       default:
         this.resetComponent();
         break;
@@ -136,6 +155,9 @@ class SearchComponent extends Component {
       case '/station':
       case '/stationskill':
         this.props.setstationfromsearch(result)
+        break;
+      case '/groups':
+        this.props.setgroupsfromsearch(result)
         break;
       default:
         break;
@@ -178,6 +200,7 @@ function mapDispatchToProps(dispatch) {
     setpeoplefromsearch: (people) => dispatch({ type: 'SET_PEOPLE_FROM_SEARCH', payload: people }),
     setskillfromsearch: (skill) => dispatch({ type: 'SET_SKILL_FROM_SEARCH', payload: skill }),
     setstationfromsearch: (station) => dispatch({ type: 'SET_STATION_FROM_SEARCH', payload: station }),
+    setgroupsfromsearch: (groups) => dispatch({ type: 'SET_GROUPS_FROM_SEARCH', payload: groups }),
   }
 }
 
@@ -185,14 +208,16 @@ function mapStateToProps(state) {
   return {
     people: state.people,
     skill: state.skill,
-    station: state.station
+    station: state.station,
+    groups: state.groups
   }
 }
 
 SearchComponent.propTypes={
   setpeoplefromsearch:propTypes.any,
   setskillfromsearch:propTypes.any,
-  setskillfromsearch:propTypes.any
+  setskillfromsearch:propTypes.any,
+  setgroupsfromsearch:propTypes.any,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(SearchComponent));

@@ -92,6 +92,7 @@ const Request = {
     try {
       const req = await axios.post(`${LOGIN_AZURE}/oauth/token`, params.data, headersLoginAzure);
       const response = { status: 200, res: req };
+      console.log(response);
       return response;
     }
     catch (error) {

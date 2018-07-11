@@ -5,6 +5,7 @@ import people from './people';
 // import searchcomponent from './search';
 import menu from './menu';
 import menumobile from './menu';
+import groups from './groups'
 
 export default combineReducers({
   //searchcomponent,
@@ -12,5 +13,6 @@ export default combineReducers({
   skill,
   people,
   menu,
-  menumobile
+  menumobile,
+  groups
 });
