@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Input, Button, Form, Grid, Segment, Header, Confirm, Dropdown } from 'semantic-ui-react';
+import { Input, Button, Form, Grid, Segment, Header, Confirm, Dropdown, Dimmer, Loader } from 'semantic-ui-react';
 import SearchComponent from '../search';
 import { connect } from 'react-redux'
 import Request from '../../api/request';
-import { API_URL_GROUPS, API_URL_NEW, API_URL_UPDATE, API_URL_DELETE } from '../../api/URLs';
+import { API_URL_GROUPS, API_URL_NEW, API_URL_UPDATE, API_URL_DELETE, API_URL_AUTHORITIES } from '../../api/URLs';
 import NotificationSystem from 'react-notification-system';
 
 class Groups extends Component {
@@ -15,8 +15,11 @@ class Groups extends Component {
             id: 0,
             name: '',
             nextProps: [],
-            loader: true,
-            users: []
+            active: true,
+            users: [],
+            authorities: [],
+            loadingAuthorities: true,
+            selectedAuthorities: []
         };
     }
 
@@ -41,14 +44,23 @@ class Groups extends Component {
 
     componentWillMount() {
         this.clearState();
+        this.loadAuthorities();
     }
     
     componentWillUnmount() {
         this.clearState();
     }
 
-    loadUsers() {
-
+    loadAuthorities() {
+        Request.get({
+            url: API_URL_AUTHORITIES
+        }).then(response => {
+            if(response.status === 200){
+                this.setState({ loadingAuthorities: false, active: false });
+                const options = response.res.map(({ id, name }) => ({ value: id, text: name }))
+                this.setState({ authorities: options });
+            }
+        })
     }
 
     handleCreate = async () => {
@@ -134,8 +146,19 @@ class Groups extends Component {
     }
 
     render() {
+
+        const { authorities, loadingAuthorities, selectedAuthorities } = this.state;
+        const renderLabel = label => ({
+            color: 'blue',
+            content: `${label.text}`,
+            icon: 'check',
+        })
+
         return (
             <div>
+                <Dimmer active={this.state.active}>
+                    <Loader />
+                </Dimmer>
                 <Fragment>
                     <Segment raised>
                         <Grid>
@@ -181,13 +204,13 @@ class Groups extends Component {
                                 multiple
                                 selection
                                 fluid
-                                options={skills}
-                                placeholder='Choose one or multiple skills'
+                                options={authorities}
+                                placeholder='Choose one or multiple authorities'
                                 renderLabel={renderLabel}
                                 search
-                                loading={loadingSkills}
-                                onChange={(e, { value }) => this.changeValue('selectedSkills', value)}
-                                value={selectedSkills}
+                                loading={loadingAuthorities}
+                                onChange={(e, { value }) => this.changeValue('selectedAuthorities', value)}
+                                value={selectedAuthorities}
                                 />
                             </Form.Field>
                             {this.state.id === 0 || this.state.id === undefined ? //New People
