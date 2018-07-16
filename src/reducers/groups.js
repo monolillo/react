@@ -6,6 +6,7 @@ export default (state = []
           ...state,
           id: action.payload.id,
           name: action.payload.name,
+          selectedAuthorities: action.payload.authoritiesList,
         }
       default:
         return state

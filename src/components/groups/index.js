@@ -32,7 +32,8 @@ class Groups extends Component {
         if (id === 0 || id === undefined) {
             this.setState({
                 id: nextProps.groups.id,
-                name: nextProps.groups.name
+                name: nextProps.groups.name,
+                selectedAuthorities: nextProps.groups.selectedAuthorities.map(({ name }) => ({ value: name, text: name }))
             });
             this.setState({ confirmOpen: false });
         } else {
@@ -40,7 +41,8 @@ class Groups extends Component {
         }
     }
 
-    clearState = () => this.setState({ id: 0, name: '', nextProps: [] });
+    clearState = () => this.setState({ id: 0, name: '', nextProps: [], active: false, users: [], authorities: [], 
+                                    loadingAuthorities: false, selectedAuthorities: [] });
 
     componentWillMount() {
         this.clearState();
@@ -57,7 +59,7 @@ class Groups extends Component {
         }).then(response => {
             if(response.status === 200){
                 this.setState({ loadingAuthorities: false, active: false });
-                const options = response.res.map(({ id, name }) => ({ value: id, text: name }))
+                const options = response.res.map(({ name }) => ({ value: name, text: name }))
                 this.setState({ authorities: options });
             }
         })
@@ -65,10 +67,11 @@ class Groups extends Component {
 
     handleCreate = async () => {
 
-        const { name } = this.state;
+        const { name, selectedAuthorities } = this.state;
 
         const details = {
-            name: name
+            name: name,
+            authoritiesList: selectedAuthorities.map(value => ({ 'name': value}))
         }
 
         Request.post({
@@ -148,6 +151,7 @@ class Groups extends Component {
     render() {
 
         const { authorities, loadingAuthorities, selectedAuthorities } = this.state;
+
         const renderLabel = label => ({
             color: 'blue',
             content: `${label.text}`,
@@ -198,9 +202,9 @@ class Groups extends Component {
                                 </Form.Field>
                             </Form.Group>
                             <Form.Field>
-                                <label>User Selection</label>
+                                <label>Authorities Selection</label>
                                 <Dropdown
-                                disabled={this.state.id === 0 ? true : false}
+                                disabled={this.state.name === '' ? true : false}
                                 multiple
                                 selection
                                 fluid
@@ -259,7 +263,6 @@ class Groups extends Component {
 }
 
 const mapStateToProps = (globalState) => {
-    console.log('mapStateToProps: ', globalState);
     return {
         groups: globalState.groups
     }
