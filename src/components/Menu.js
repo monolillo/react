@@ -3,27 +3,9 @@ import { Image, Dropdown, Menu, Label } from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as actions from '../actions/menu';
-import Auth from '../config/session';
-import BrandLogo from '../assets/eluxlogofull.png';
-
+import PelotaFull from '../assets/pelotaFull.jpg';
 
 class MenuApp extends Component {
-
-  state = {
-    visible: false
-  };
-
-  handleClickItem = (e, { name, to }) => {
-    const { changeActiveItem, history } = this.props;
-    changeActiveItem(name);
-    history.push(to);
-  };
-
-  handleClickSingout = (e) => {
-    Auth.logout();
-    const { history } = this.props;
-    history.push('/login');
-  };
 
   render() {
     const { active } = this.props;
@@ -31,42 +13,10 @@ class MenuApp extends Component {
     return (
       <div>
         <div>
-          <Menu borderless inverted color="blue" style={{backgroundColor: "#021d42"}}>
+          <Menu borderless inverted color="green" style={{backgroundColor: "#2EFE2E"}}>
             <Menu.Item>
-              <Image size="small" src={BrandLogo} />
+              <Image size="tiny" src={PelotaFull} />
             </Menu.Item>
-            <Menu.Item name="home" to="/" active={active === "home"} onClick={this.handleClickItem} />
-            <Menu.Menu>
-              <Dropdown item text="Administration">
-                <Dropdown.Menu>
-                  <Dropdown.Item name="people" to="/people" onClick={this.handleClickItem}>People</Dropdown.Item>
-                  <Dropdown.Item name="skill" to="/skill" onClick={this.handleClickItem}>Skills</Dropdown.Item>
-                  <Dropdown.Item name="station" to="/station" onClick={this.handleClickItem}>Stations</Dropdown.Item>
-                  <Dropdown.Item name="stationskill" to="/stationskill" onClick={this.handleClickItem}>Stations - Skills</Dropdown.Item>
-                  <Dropdown.Item name="peopleskill" to="/peopleskill" onClick={this.handleClickItem}>People - Skills</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </Menu.Menu>
-            <Menu.Item name="livemap" to="/livemap" active={active === "livemap"} onClick={this.handleClickItem} />
-            <Menu.Item name="playground" to="/playground" active={active === "playground"} onClick={this.handleClickItem} />
-            <Menu.Menu position="right">
-              <Menu.Item>
-                <Label as="a">
-                  UserName
-                  </Label>
-              </Menu.Item>
-              <Menu.Item>
-                {/* <SearchComponent actualcomponent={active} /> */}
-              </Menu.Item>
-              <Dropdown item icon='configure'>
-                <Dropdown.Menu>
-                  <Dropdown.Item name="users" to="/users" onClick={this.handleClickItem}>Users</Dropdown.Item>
-                  <Dropdown.Item name="permissions" to="/permissions" onClick={this.handleClickItem}>Administration</Dropdown.Item>
-                  <Dropdown.Item name="groups" to="/groups" onClick={this.handleClickItem}>Groups</Dropdown.Item>
-                  <Dropdown.Item name="singout" to="/singout" onClick={this.handleClickSingout}>Singout</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </Menu.Menu>
           </Menu>
         </div>
       </div>

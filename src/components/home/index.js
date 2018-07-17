@@ -6,7 +6,7 @@ class Home extends Component {
   render() {
     return (
       <div>
-        <Fragment>
+        {/* <Fragment>
           <Segment raised>
             <Header as='h2'>
               <Icon name='settings' />
@@ -16,7 +16,7 @@ class Home extends Component {
               </Header.Content>
             </Header>
           </Segment>
-        </Fragment>
+        </Fragment> */}
       </div>
     );
   }

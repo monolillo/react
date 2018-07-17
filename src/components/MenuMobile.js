@@ -4,9 +4,8 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as actions from '../actions/menu';
 import Auth from '../config/session';
-import BrandLogo from '../assets/eluxlogo.png';
-import BrandLogoFull from '../assets/eluxlogofull.png';
-
+import Pelota from '../assets/pelota.jpg';
+import PelotaFull from '../assets/pelotaFull.jpg';
 
 class MenuAppMobile extends Component {
 
@@ -52,7 +51,7 @@ class MenuAppMobile extends Component {
                         vertical
                         visible={visible}
                     >
-                        <Image size="small" src={BrandLogoFull} />
+                        <Image size="small" src={PelotaFull} />
                         <Menu.Item name="home" to="/" active={active === "home"} onClick={this.handleClickItem} />
                         <Menu.Item name="people" to="/people" active={active === "people"} onClick={this.handleClickItem} />
                         <Menu.Item name="skill" to="/skill" active={active === "skill"} onClick={this.handleClickItem} />
@@ -74,7 +73,7 @@ class MenuAppMobile extends Component {
                         <Menu fixed="top" inverted
                             style={{ backgroundColor: "#021d42" }}>
                             <Menu.Item>
-                                <Image size="mini" src={BrandLogo} />
+                                <Image size="mini" src={Pelota} />
                             </Menu.Item>
                             <Menu.Item onClick={this.handleToggle}>
                                 <Icon name="sidebar" />
