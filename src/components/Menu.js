@@ -7,27 +7,33 @@ import PelotaFull from '../assets/pelotaFull.jpg';
 
 class MenuApp extends Component {
 
-  render() {
-    const { active } = this.props;
+  handleClickItem = (e, { to }) => {
+    const { history } = this.props;
+    history.push(to);
+  };
 
-    return (
-      <div>
-        <div>
-          <Menu borderless inverted color="green" style={{backgroundColor: "#2EFE2E"}}>
-            <Menu.Item>
-              <Image size="tiny" src={PelotaFull} />
-            </Menu.Item>
-          </Menu>
-        </div>
-      </div>
-    );
+render() {
+const { active } = this.props;
+
+return (
+  <div>
+    <div>
+      <Menu borderless inverted color="green" style={{backgroundColor: "#2EFE2E"}}>
+        <Menu.Item name="home" to="/" active={active === "home"} onClick={this.handleClickItem}>
+          <Image size="tiny" src={PelotaFull} />
+        </Menu.Item>
+        <Menu.Item name="blabla" to="/blabla" onClick={this.handleClickItem} />
+      </Menu>
+    </div>
+  </div>
+  );
   }
 }
 
 const mapStateToProps = state => {
-  return {
-    active: state.menu.active
-  };
+return {
+active: state.menu.active
+};
 };
 
 export default connect(mapStateToProps, actions)(withRouter(MenuApp));
